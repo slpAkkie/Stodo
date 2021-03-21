@@ -1,0 +1,121 @@
+/*
+ * --------------------------------------------------
+ * Base tags */
+
+body {
+
+  /* Font */
+  font-family: 'Raleway', 'Segoe UI', 'Arial', sans-serif;
+  color: var(--c-black);
+
+  /* Appearance */
+  background-color: var(--c-light-1);
+
+}
+
+/*
+ * --------------------------------------------------
+ * Input type 1 */
+
+input[type="text"],
+input[type="date"],
+input[type="button"] {
+
+  /* Dimensions */
+  padding: 5px 15px;
+
+  /* Font */
+  font-size: .95em;
+
+  /* Behavior */
+  transition-duration: .25s;
+  transition-timing-function: ease;
+  transition-property: background-color, border-color ;
+
+}
+
+/*
+ * --------------------------------------------------
+ * Input: text */
+
+input[type="text"] {
+
+  /* Appearance */
+  border: 1px solid var(--c-light-2);
+  border-bottom-width: 2px;
+  border-radius: .25em .25em .05em .05em;
+
+}
+
+input[type="text"]:focus { border-bottom-color: var(--c-accent) }
+
+/*
+ * --------------------------------------------------
+ * Input: date */
+
+input[type="date"] {
+
+  /* Appearance */
+  border: 1px solid var(--c-light-2);
+  border-left-width: 3px;
+  border-radius: .25em .1em .1em .25em;
+
+  /* Behavior */
+  cursor: pointer;
+
+}
+
+input[type="date"]:focus { border-left-color: var(--c-accent) }
+
+/*
+ * --------------------------------------------------
+ * Input: checkbox */
+
+input[type="checkbox"] { cursor: pointer }
+
+/*
+ * --------------------------------------------------
+ * Input: button */
+
+input[type="button"] {
+
+  /* Appearance */
+  background-color: var(--c-light-2);
+  border-radius: .25em;
+
+  /* Behavior */
+  cursor: pointer;
+
+}
+
+input[type="button"]:hover {
+
+  /* Font */
+  color: var(--c-light-1);
+
+  /* Appearance */
+  background-color: var(--c-accent);
+
+}
+
+/*
+ * --------------------------------------------------
+ * Base classes */
+
+.pc-container {
+
+  /* Dimensions */
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0px 30px;
+
+}
+
+.pc-main {
+
+  /* Dimensions */
+  margin-top: 1em;
+  margin-bottom: 1em;
+
+}

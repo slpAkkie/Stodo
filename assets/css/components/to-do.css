@@ -1,0 +1,134 @@
+/*
+ * --------------------------------------------------
+ * Wrapper */
+
+.to-do__wrapper:nth-child(n+2) { margin-top: 10px }
+
+.to-do__childs > .to-do__wrapper:nth-child(n+2) { margin-top: 2px }
+
+/*
+ * --------------------------------------------------
+ * To-do */
+
+.to-do {
+
+  /* Positioning */
+  position: relative;
+
+  /* Display */
+  display: flex;
+  justify-content: space-evenly;
+
+  /* Dimensions */
+  padding: 10px 10px 10px 5px;
+
+  /* Appearance */
+  border-radius: .25em;
+
+  /* Behavior */
+  overflow: hidden;
+  transition: background-color .15s ease-in;
+
+}
+
+.to-do:hover { background-color: var(--c-light-2) }
+
+.to-do:hover .to-do__controls { opacity: 1 }
+
+/*
+ * --------------------------------------------------
+ * Title */
+
+.to-do__title {
+
+  /* Display */
+  flex-grow: 1;
+
+  /* Dimensions */
+  margin-left: 5px;
+
+  /* Behavior */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+}
+
+/*
+ * --------------------------------------------------
+ * Until time */
+
+.to-do__until-time {
+
+  /* Display */
+  flex-shrink: 0;
+
+  /* Dimensions */
+  margin-left: 15px;
+
+}
+
+/*
+ * --------------------------------------------------
+ * Controls */
+
+.to-do__controls {
+
+  /* Positioning */
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  /* Display */
+  display: flex;
+  align-items: center;
+
+  /* Dimensions */
+  height: 100%;
+  padding: 5px 15px;
+
+  /* Appearance */
+  background-color: var(--c-light-3);
+  opacity: 0;
+
+  /* Behavior */
+  transition: opacity .15s ease-in;
+
+}
+
+.to-do__control-item:nth-child(n+2) { margin-left: 15px }
+
+.to-do__control-item:hover { text-decoration: underline }
+
+/*
+ * --------------------------------------------------
+ * Childs */
+
+.to-do__childs {
+
+  /* Positioning */
+  position: relative;
+
+  /* Dimensions */
+  margin-top: 5px;
+  padding: 5px 0 5px 40px;
+
+}
+
+.to-do__childs::before {
+
+  content: '';
+
+  /* Positioning */
+  position: absolute;
+  top: 0;
+  left: 30px;
+
+  /* Dimensions */
+  width: 2px;
+  height: 100%;
+
+  /* Appearance */
+  background-color: var(--c-accent);
+
+}

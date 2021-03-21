@@ -1,0 +1,12 @@
+/*
+ * --------------------------------------------------
+ * UI elements */
+
+.ui-button { cursor: pointer }
+
+/*
+ * --------------------------------------------------
+ * UI icons */
+
+.ui-icon_edit:after { content: 'Изменить' }
+.ui-icon_delete:after { content: 'Удалить' }
