@@ -82,80 +82,56 @@
       To-do list -->
       <div class="tab-content__container">
         <div class="tab-content"></div>
+        <div class="tab-content__add-button-container">
+          <input type="button" class="tab-content__add-button" id="js-add-new" value="Добавить">
+        </div>
       </div>
 
     </main>
 
-    <!-- -------------------------
-    Popup -->
-    <div class="popup__wrapper">
-      <div class="popup__overlay"></div>
-      <div class="popup__container">
-        <div class="popup">
+  </div>
 
-          <!-- Popup header -->
-          <header class="popup__top">
-            <div class="popup__header-title"></div>
-            <div class="ui ui-button ui-icon_exit popup__exit-button"></div>
-          </header>
+  <!-- -------------------------
+  Popup -->
+  <div class="popup__wrapper popup__wrapper_shown">
+    <div class="popup__overlay"></div>
+    <div class="popup__container">
+      <div class="popup pc-container">
 
-          <!-- Popup content -->
-          <div class="popup__content">
-            <div class="popup__row"><input type="text" class="popup__title"></div>
-            <div class="popup__row">
-              <input type="checkbox" id="popup__done" class="popup__done">
-              <label for="popup__done">Выполнено</label>
-            </div>
-            <div class="popup__row">
-              <label for="popup__until">Выполнить до</label>
-              <input type="date" id="popup__until" class="popup__until">
-            </div>
-            <div class="popup__row">
-              <label>Подзадачи</label>
-              <input type="button" id="popup__add-child" value="Добавить">
-            </div>
-            <div class="popup__row">
-              <div class="popup__childs-container">
-                <div class="popup__childs">
+        <!-- Popup header -->
+        <header class="popup__top">
+          <div class="popup__header-title">Редактор</div>
+          <div class="ui ui-button ui-icon_close popup__close-button"></div>
+        </header>
 
-                  <!-- ::To-do -->
-                  <div class="to-do__container">
-                    <div class="to-do">
-                      <div class="to-do__checkbox-container"><input type="checkbox" class="to-do__checkbox"></div>
-                      <div class="to-do__title">To-do Title</div>
-                      <div class="to-do__controls-container">
-                        <div class="to-do__controls">
-                          <div class="to-do__control">
-                            <div class="ui ui-button ui-icon_delete to-do__control-delete"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- ::To-do -->
-                  <div class="to-do__container">
-                    <div class="to-do">
-                      <div class="to-do__checkbox-container"><input type="checkbox" class="to-do__checkbox"></div>
-                      <div class="to-do__title">To-do Title</div>
-                      <div class="to-do__controls-container">
-                        <div class="to-do__controls">
-                          <div class="to-do__control">
-                            <div class="ui ui-button ui-icon_delete to-do__control-delete"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
+        <!-- Popup content -->
+        <div class="popup__content">
+          <div class="popup__row"><input type="text" class="popup__title" placeholder="Название задачи"></div>
+          <div class="popup__row popup__row_half popup__row_between">
+            <label for="popup__until" class="popup__until-label">Выполнить до</label>
+            <input type="date" id="popup__until" class="popup__until">
+          </div>
+          <div class="popup__row popup__row_half">
+            <input type="checkbox" id="popup__done" class="popup__done">
+            <label for="popup__done" class="popup__done-label">Выполнено</label>
+          </div>
+          <div class="popup__row popup__row_between">
+            <label class="popup__add-child-label">Подзадачи</label>
+            <input type="button" id="popup__add-child" value="Добавить">
+          </div>
+          <div class="popup__row">
+            <div class="popup__childs-container">
+              <div class="popup__childs"></div>
             </div>
           </div>
-
+          <div class="popup__row popup__row_between">
+            <input type="button" class="popup__control-buttons popup__save-button" value="Сохранить">
+            <input type="button" class="popup__control-buttons popup__cancel-button" value="Отменить">
+          </div>
         </div>
+
       </div>
     </div>
-
   </div>
 
 

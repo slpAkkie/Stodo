@@ -98,7 +98,8 @@
  * --------------------------------------------------
  * Content container */
 
-.tab-content__container {
+.tab-content__container,
+.popup__childs-container {
 
   /* Dimensions */
   padding: 15px;
@@ -107,5 +108,39 @@
   border: 1px solid var(--c-accent);
   border-radius: 0 0 .25em .25em;
   box-shadow: inset 0px 0px 10px -5px var(--c-dark);
+
+}
+
+.tab-content__add-button-container {
+
+  /* Font */
+  text-align: center;
+
+  /* Dimensions */
+  padding: 10px 5px;
+
+}
+
+.tab-content__add-button {
+
+  /* Dimensions */
+  padding: 5px 15px;
+
+  /* Font */
+  font-weight: 500;
+
+  /* Appearance */
+  background-color: var(--c-light-2);
+  border-radius: 1em;
+
+  /* Behavior */
+  transition: background-color .15s ease-in;
+
+}
+
+.tab-content__add-button:hover {
+
+  /* Appearance */
+  background-color: var(--c-light-3);
 
 }
