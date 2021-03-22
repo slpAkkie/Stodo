@@ -87,7 +87,7 @@
 .popup__header-title {
 
   /* Font */
-  font-weight: 500;
+  font-variation-settings: "wght" 500;
   font-size: 1.1em;
 
 }
@@ -163,7 +163,7 @@
 .popup__add-child-label {
 
   /* Font */
-  font-weight: 600;
+  font-variation-settings: "wght" 500;
   font-size: 1.1em;
 
 }
