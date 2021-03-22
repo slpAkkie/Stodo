@@ -9,13 +9,13 @@ DEF_DATA = {
       title: 'Активные',
       items: [
         {
-          title: 'Сделать сайт со списком дел',
+          title: 'Первая заметка',
           done: false,
           until: '12-05-2021',
           childs: [
             {
-              title: 'Придумать дизайн',
-              done: true,
+              title: 'Заметка в первой заметке',
+              done: false,
             },
           ],
         },
@@ -25,18 +25,18 @@ DEF_DATA = {
       title: 'Завершенные',
       items: [
         {
-          title: 'Сверстать базовый шаблон',
+          title: 'Вторая заметка',
           done: true,
           until: '12-05-2021',
           childs: null,
         },
         {
-          title: 'Написать несколько функций',
+          title: 'Третья заметка',
           done: true,
           until: '12-05-2021',
           childs: [
             {
-              title: 'Написать функции вставки задач из памяти',
+              title: 'Заметка в третьей заметке',
               done: true,
             },
           ],
@@ -87,8 +87,8 @@ function createTodo( id, obj ) {
         <div class="to-do__title">${obj.title}</div>
         ${obj.until ? `<div class="to-do__until-time">${obj.until}</div>` : ''}
         <div class="to-do__controls">
-          <div class="ui ui-button ui-icon_edit to-do__control-item"></div>
-          <div class="ui ui-button ui-icon_delete to-do__control-item"></div>
+          <div class="ui ui-button ui-icon_edit to-do__control-item to-do__control-edit"></div>
+          <div class="ui ui-button ui-icon_delete to-do__control-item to-do__control-remove"></div>
         </div>
       </div>
     </div>
@@ -126,7 +126,7 @@ function createEditableSub() {
  * --------------------------------------------------
  * Todo save */
 
-function saveTodo() {
+function todoSave() {
   let PPP_TMPDT = new Object();
   PPP_TMPDT.title = _( '.popup__title' ).value;
   PPP_TMPDT.until = _( '.popup__until' ).value || null;
@@ -148,10 +148,40 @@ function saveTodo() {
     DATA.tabs[ DATA.active_tab ].items[ DATA.editTodoID ] = PPP_TMPDT;
   else
     DATA.tabs[ DATA.active_tab ].items.push( PPP_TMPDT );
-  loadTabContent( DATA.tabs[ DATA.active_tab ].items );
 
   popupClose();
-  dataSave();
+  rerender();
+}
+
+/**
+ * --------------------------------------------------
+ * Todo remove */
+
+function todoRemove() {
+  // Searching an id
+  let id = this.parent( '[data-todo-id]' ).getAttribute( 'data-todo-id' );
+  id = parseInt( id );
+  if ( isNaN( id ) ) return;
+
+  let parentTodo = this.parent( '.to-do__childs' );
+
+  // Shift all others elements
+  if ( parentTodo ) {
+    let parentID = parentTodo.prev()._( '.to-do' ).getAttribute( 'data-todo-id' );
+    for ( let i = id; i < DATA.tabs[ DATA.active_tab ].items[ parentID ].childs.length - 1; i++ ) {
+      DATA.tabs[ DATA.active_tab ].items[ parentID ].childs[ i ] = DATA.tabs[ DATA.active_tab ].items[ parentID ].childs[ i + 1 ];
+      parentTodo.parent( '.to-do__wrapper' ).parent()._( `[data-todo-id=${i + 1}]` ).setAttribute( 'data-todo-id', i );
+    }
+    --DATA.tabs[ DATA.active_tab ].items[ parentID ].childs.length < 1 && ( DATA.tabs[ DATA.active_tab ].items[ parentID ].childs = null );
+  } else {
+    for ( let i = id; i < DATA.tabs[ DATA.active_tab ].items.length - 1; i++ ) {
+      DATA.tabs[ DATA.active_tab ].items[ i ] = DATA.tabs[ DATA.active_tab ].items[ i + 1 ];
+      this.parent( '.to-do__wrapper' ).parent()._( `[data-todo-id=${i + 1}]` ).setAttribute( 'data-todo-id', i );
+    }
+    DATA.tabs[ DATA.active_tab ].items.length--;
+  }
+
+  rerender();
 }
 
 /**
@@ -162,7 +192,8 @@ function saveTodo() {
  * @param {String|null} where
  */
 
-function loadTabContent( todos, where = null ) {
+function loadTabContent( todos = null, where = null ) {
+  todos = todos || getCurrentTabItems();
   where = _( where ) || _( '.tab-content' );
   where.innerHTML = '';
   todos.forEach( ( obj, id ) => {
@@ -198,7 +229,7 @@ function switchTab() {
   console.log( `Пользователь открыл вкладку id(${DATA.active_tab})` );
   _( `.tabs__tab_active` )?.toggleClass( 'tabs__tab_active' );
   this.toggleClass( 'tabs__tab_active' );
-  loadTabContent( getCurrentTabItems() );
+  loadTabContent();
 }
 
 /**
@@ -217,6 +248,7 @@ function popupOpen() {
 function popupClose() {
   _( '.popup__wrapper' ).removeClass( 'popup__wrapper_shown' );
   _( '.popup__wrapper' ).addClass( 'popup__wrapper_closed' );
+  clearPopup();
 }
 
 /**
@@ -225,7 +257,7 @@ function popupClose() {
 
 function popupDelete() {
   if ( DATA.editingMode ) { }
-  else { popupClose() }
+  else { popupClose(); rerender(); }
 }
 
 /**
@@ -237,6 +269,15 @@ function clearPopup() {
   _( '.popup__until' ).value = '';
   _( '.popup__done' ).checked = false;
   _( '.popup__childs' ).innerHTML = '';
+}
+
+/**
+ * --------------------------------------------------
+ * Rerender */
+
+function rerender() {
+  loadTabContent();
+  dataSave();
 }
 
 /**
@@ -270,7 +311,7 @@ DATA.editingMode = false;
 DATA.editTodoID = null;
 loadTabs();
 _( `.tabs__tab[data-tab-id="0"]` ).toggleClass( 'tabs__tab_active' );
-loadTabContent( DATA.tabs[ 0 ].items );
+loadTabContent();
 
 
 
@@ -282,18 +323,21 @@ loadTabContent( DATA.tabs[ 0 ].items );
 _( '.tabs__tab' ).on( 'click', switchTab );
 
 // --------------------------------------------------
+_( '.to-do__control-remove' ).on( 'click', todoRemove );
+
+// --------------------------------------------------
 _( '#js-add-new' ).on( 'click', popupOpen );
 
 // --------------------------------------------------
 _( '.popup__close-button' ).on( 'click', popupClose );
 
 // --------------------------------------------------
-_( '.popup__save-button' ).on( 'click', saveTodo );
+_( '.popup__save-button' ).on( 'click', todoSave );
 
 // --------------------------------------------------
 _( '.popup__delete-button' ).on( 'click', popupDelete );
 
 // --------------------------------------------------
 _( '#popup__add-child' ).on( 'click', function () {
-  _( '.popup__childs' ).insert( createEditableSub() );
+  _( '.popup__childs' ).insertFirst( createEditableSub() );
 } );
