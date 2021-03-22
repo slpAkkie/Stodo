@@ -92,6 +92,7 @@ function switchTab() {
   console.log( `Пользователь открыл вкладку id(${DATA.active_tab})` );
   _( `.tabs__tab_active` )?.toggleClass( 'tabs__tab_active' );
   this.toggleClass( 'tabs__tab_active' );
+  activeTabSave();
   loadTabContent();
 }
 
@@ -227,7 +228,7 @@ function todoRemove() {
   } else {
     for ( let i = id; i < currentTabItems.length - 1; i++ ) {
       currentTabItems[ i ] = currentTabItems[ i + 1 ];
-      this.parent( '.to-do__wrapper' ).parent()._( `[data-todo-id=${i + 1}]` ).setAttribute( 'data-todo-id', i );
+      this.parent( '.to-do__wrapper' ).parent()._( `[data-todo-id="${i + 1}"]` ).setAttribute( 'data-todo-id', i );
     }
     currentTabItems.length--;
   }
@@ -300,8 +301,12 @@ function createTodo( id, obj, parentID ) {
   ( parentID !== null ) && ( todo._( '.to-do' ).parentID = parentID );
   todo._( '.to-do__checkbox-input' ).get( 0, true ).on( 'click', function () {
     if ( parentID !== null ) getCurrentTabItems()[ parentID ].childs[ id ].done = this.checked
-    else getCurrentTabItems()[ id ].done = this.checked;
-    dataSave();
+    else {
+      getCurrentTabItems()[ id ].done = this.checked;
+      DATA.tabs[ Math.abs( DATA.active_tab - 1 ) ].items.unshift( getCurrentTabItems()[ id ] )
+      todoRemove.call( this );
+    }
+    tabsSave();
   } )
 
   /**
@@ -348,7 +353,27 @@ LS = {
  * --------------------------------------------------
  * Save Data */
 
-function dataSave() { LS.set( 'SavedData', DATA ) }
+function dataSave() {
+  tabsSave();
+  activeTabSave();
+  titleSave();
+}
+
+function tabsSave() { LS.set( 'tabs', DATA.tabs ) }
+function activeTabSave() { LS.set( 'active_tab', DATA.active_tab ) }
+function titleSave() { LS.set( 'title', DATA.title ) }
+
+/**
+ * --------------------------------------------------
+ * Load Data */
+
+function dataLoad() {
+  DATA.tabs = LS.get( 'tabs' );
+  DATA.active_tab = LS.get( 'active_tab' );
+  DATA.title = LS.get( 'title' );
+
+  return DATA.tabs && DATA.active_tab && DATA.title;
+}
 
 /**
  * --------------------------------------------------
@@ -356,7 +381,7 @@ function dataSave() { LS.set( 'SavedData', DATA ) }
 
 function rerender() {
   loadTabContent();
-  dataSave();
+  tabsSave();
 }
 
 
@@ -365,13 +390,14 @@ function rerender() {
  * --------------------------------------------------
  * Init App */
 
-DATA = LS.get( 'SavedData' ) || DEF_DATA;
-_( '.header-title' ).value = DATA.title;
+let DATA = {};
+dataLoad() || ( DATA = DEF_DATA );
 DATA.editingMode = false;
 DATA.editTodoID = null;
 DATA.editTodoParentID = null;
+_( '.header-title' ).value = DATA.title;
 loadTabs();
-_( `.tabs__tab[data-tab-id="0"]` ).toggleClass( 'tabs__tab_active' );
+_( `.tabs__tab[data-tab-id="${DATA.active_tab}"]` ).toggleClass( 'tabs__tab_active' );
 loadTabContent();
 
 
@@ -392,7 +418,7 @@ _( '.header-title' ).on( 'blur', function () {
   _( '.header-title' ).setAttribute( 'disabled', true );
   if ( !this.value ) this.value = 'Мой список задач';
   DATA.title = this.value;
-  dataSave();
+  titleSave();
 } );
 
 // --------------------------------------------------
