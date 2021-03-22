@@ -144,7 +144,10 @@ function saveTodo() {
 
   !PPP_TMPDT.childs.length && ( PPP_TMPDT.childs = null );
 
-  DATA.tabs[ DATA.active_tab ].items.push( PPP_TMPDT );
+  if ( DATA.editingMode )
+    DATA.tabs[ DATA.active_tab ].items[ DATA.editTodoID ] = PPP_TMPDT;
+  else
+    DATA.tabs[ DATA.active_tab ].items.push( PPP_TMPDT );
   loadTabContent( DATA.tabs[ DATA.active_tab ].items );
 
   popupClose();
@@ -218,6 +221,26 @@ function popupClose() {
 
 /**
  * --------------------------------------------------
+ * Close popup */
+
+function popupDelete() {
+  if ( DATA.editingMode ) { }
+  else { popupClose() }
+}
+
+/**
+ * --------------------------------------------------
+ * Clear popup */
+
+function clearPopup() {
+  _( '.popup__title' ).value = '';
+  _( '.popup__until' ).value = '';
+  _( '.popup__done' ).checked = false;
+  _( '.popup__childs' ).innerHTML = '';
+}
+
+/**
+ * --------------------------------------------------
  * Local storage */
 
 LS = {
@@ -243,6 +266,8 @@ function dataSave() { LS.set( 'SavedData', DATA ) }
  * Init App */
 
 DATA = LS.get( 'SavedData' ) || DEF_DATA;
+DATA.editingMode = false;
+DATA.editTodoID = null;
 loadTabs();
 _( `.tabs__tab[data-tab-id="0"]` ).toggleClass( 'tabs__tab_active' );
 loadTabContent( DATA.tabs[ 0 ].items );
@@ -264,6 +289,9 @@ _( '.popup__close-button' ).on( 'click', popupClose );
 
 // --------------------------------------------------
 _( '.popup__save-button' ).on( 'click', saveTodo );
+
+// --------------------------------------------------
+_( '.popup__delete-button' ).on( 'click', popupDelete );
 
 // --------------------------------------------------
 _( '#popup__add-child' ).on( 'click', function () {
