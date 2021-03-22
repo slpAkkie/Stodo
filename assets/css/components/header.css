@@ -21,6 +21,22 @@
 
 }
 
+input.header-title {
+
+  /* Dimensions */
+  width: 100%;
+
+  /* Font */
+  font-size: 2.25em;
+
+  /* Appearance */
+  background: transparent;
+  border: none;
+
+}
+
+input.header-title:disabled { color: initial }
+
 .header-title__container:hover .header-title__edit-button { opacity: 1 }
 
 .header-title__edit-button {
@@ -28,7 +44,7 @@
   /* Positioning */
   position: absolute;
   right: 0;
-  bottom: .5em;
+  bottom: 2.5em;
 
   /* Appearance */
   opacity: 0;

@@ -3,6 +3,7 @@
  * JSON data */
 
 DEF_DATA = {
+  title: 'Мой список задач',
   active_tab: 0,
   tabs: [
     {
@@ -307,6 +308,7 @@ function dataSave() { LS.set( 'SavedData', DATA ) }
  * Init App */
 
 DATA = LS.get( 'SavedData' ) || DEF_DATA;
+_( '.header-title' ).value = DATA.title;
 DATA.editingMode = false;
 DATA.editTodoID = null;
 loadTabs();
@@ -318,6 +320,21 @@ loadTabContent();
 /**
  * --------------------------------------------------
  * Handlers */
+
+// --------------------------------------------------
+_( '.header-title__edit-button' ).on( 'click', () => {
+  let ht = _( '.header-title' );
+  ht.removeAttribute( 'disabled' )
+  ht.focus();
+  ht.select();
+} );
+
+_( '.header-title' ).on( 'blur', function () {
+  _( '.header-title' ).setAttribute( 'disabled', true );
+  if ( !this.value ) this.value = 'Мой список задач';
+  DATA.title = this.value;
+  dataSave();
+} );
 
 // --------------------------------------------------
 _( '.tabs__tab' ).on( 'click', switchTab );
