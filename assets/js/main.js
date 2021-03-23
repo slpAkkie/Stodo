@@ -258,7 +258,7 @@ function todoEdit() {
   } else {
     todo = getCurrentTabItems()[ id ];
     todo.childs.forEach( el => {
-      _( '.popup__childs' ).insertFirst( createEditableSub( el ) );
+      _( '.popup__childs' ).insert( createEditableSub( el ) );
     } );
   }
 
@@ -438,5 +438,5 @@ _( '.popup__delete-button' ).on( 'click', popupDelete );
 
 // --------------------------------------------------
 _( '#popup__add-child' ).on( 'click', function () {
-  _( '.popup__childs' ).insertFirst( createEditableSub() );
+  _( '.popup__childs' ).insert( createEditableSub() );
 } );
