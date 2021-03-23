@@ -135,6 +135,15 @@ function popupDelete() {
 
 /**
  * --------------------------------------------------
+ * Change value in the popup title input */
+
+function popupWriteInTitle() {
+  _( '.popup__title' ).hasClass( 'popup__title_wrong' )
+    && _( '.popup__title' ).removeClass( 'popup__title_wrong' )
+}
+
+/**
+ * --------------------------------------------------
  * Clear popup */
 
 function clearPopup() {
@@ -186,6 +195,12 @@ function todoSave() {
   PPP_TMPDT.until = _( '.popup__until' ).value || null;
   PPP_TMPDT.done = _( '.popup__done' ).checked || false;
   PPP_TMPDT.childs = [];
+
+  if ( PPP_TMPDT.title === '' ) {
+    alert( 'Название должно быть заполнено' );
+    _( '.popup__title' ).addClass( 'popup__title_wrong' );
+    return;
+  }
 
   _( '.popup__todo-editable-child' )?.each( el => {
     let sub = {
@@ -443,6 +458,9 @@ _( '.tabs__tab' ).on( 'click', switchTab );
 
 // --------------------------------------------------
 _( '#js-add-new' ).on( 'click', popupOpen );
+
+// --------------------------------------------------
+_( '.popup__title' ).on( 'input', popupWriteInTitle );
 
 // --------------------------------------------------
 _( '.popup__close-button' ).on( 'click', popupClose );
