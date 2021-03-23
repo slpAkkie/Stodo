@@ -215,7 +215,11 @@ function todoSave() {
  * --------------------------------------------------
  * Todo remove */
 
-function todoRemove() {
+function todoRemove( toConfirm = true ) {
+  //  Make sure to delete
+  let confirmation = toConfirm ? confirm( 'Вы правда хотите удалить эту запись?' ) : true;
+  if ( !confirmation ) return;
+
   // Searching an id
   let id = this.parent( '[data-todo-id]' ).getAttribute( 'data-todo-id' );
   id = parseInt( id );
@@ -233,11 +237,8 @@ function todoRemove() {
     }
     --currentTabItems[ parentID ].childs.length < 1 && ( currentTabItems[ parentID ].childs = null );
   } else {
-    for ( let i = id; i < currentTabItems.length - 1; i++ ) {
+    for ( let i = id; i < currentTabItems.length - 1; i++ )
       currentTabItems[ i ] = currentTabItems[ i + 1 ];
-      // Maybe its unnecessary
-      // this.parent( '.to-do__wrapper' ).parent()._( `[data-todo-id="${i + 1}"]` )?.get().setAttribute( 'data-todo-id', i );
-    }
     currentTabItems.length--;
   }
 
@@ -253,7 +254,7 @@ function todoCheckChange( id, parentID ) {
   else {
     getCurrentTabItems()[ id ].done = this.checked;
     DATA.tabs[ ~~this.checked ].items.unshift( getCurrentTabItems()[ id ] );
-    todoRemove.call( this );
+    todoRemove.call( this, false );
   }
 
   tabsSave();
