@@ -89,7 +89,6 @@ function loadTabs() {
 
 function switchTab() {
   DATA.active_tab = this.getAttribute( 'data-tab-id' );
-  console.log( `Пользователь открыл вкладку id(${DATA.active_tab})` );
   _( `.tabs__tab_active` )?.toggleClass( 'tabs__tab_active' );
   this.toggleClass( 'tabs__tab_active' );
   activeTabSave();
@@ -126,8 +125,12 @@ function popupClose() {
  * Close popup */
 
 function popupDelete() {
-  if ( DATA.editingMode ) { }
-  else { popupClose(); rerender(); }
+  if ( DATA.editingMode ) {
+    popupClose();
+    todoRemove.call( DATA.editClickedOn );
+  }
+  else popupClose()
+  rerender();
 }
 
 /**
@@ -195,8 +198,12 @@ function todoSave() {
 
   !PPP_TMPDT.childs.length && ( PPP_TMPDT.childs = null );
 
-  if ( DATA.editingMode )
+  if ( DATA.editingMode ) {
+    let oldDoneStatus = getCurrentTabItems()[ DATA.editTodoID ].done;
+
     getCurrentTabItems()[ DATA.editTodoID ] = PPP_TMPDT;
+    if ( oldDoneStatus !== PPP_TMPDT.done ) DATA.editClickedOn.parent( '.to-do' )._( '.to-do__checkbox-input' ).click();
+  }
   else
     getCurrentTabItems().push( PPP_TMPDT );
 
@@ -228,7 +235,8 @@ function todoRemove() {
   } else {
     for ( let i = id; i < currentTabItems.length - 1; i++ ) {
       currentTabItems[ i ] = currentTabItems[ i + 1 ];
-      this.parent( '.to-do__wrapper' ).parent()._( `[data-todo-id="${i + 1}"]` ).setAttribute( 'data-todo-id', i );
+      // Maybe its unnecessary
+      // this.parent( '.to-do__wrapper' ).parent()._( `[data-todo-id="${i + 1}"]` )?.get().setAttribute( 'data-todo-id', i );
     }
     currentTabItems.length--;
   }
@@ -238,10 +246,26 @@ function todoRemove() {
 
 /**
  * --------------------------------------------------
+ * Change todo check status */
+
+function todoCheckChange( id, parentID ) {
+  if ( parentID !== null ) getCurrentTabItems()[ parentID ].childs[ id ].done = this.checked
+  else {
+    getCurrentTabItems()[ id ].done = this.checked;
+    DATA.tabs[ ~~this.checked ].items.unshift( getCurrentTabItems()[ id ] );
+    todoRemove.call( this );
+  }
+
+  tabsSave();
+}
+
+/**
+ * --------------------------------------------------
  * Todo edit */
 
 function todoEdit() {
   DATA.editingMode = true;
+  DATA.editClickedOn = this;
 
   // Searching an id
   let id = parseInt( this.parent( '[data-todo-id]' ).getAttribute( 'data-todo-id' ) );
@@ -257,7 +281,7 @@ function todoEdit() {
     _( '.popup__childs' ).innerHTML = 'Добавить дочерние задачи невозможно';
   } else {
     todo = getCurrentTabItems()[ id ];
-    todo.childs.forEach( el => {
+    todo.childs?.forEach( el => {
       _( '.popup__childs' ).insert( createEditableSub( el ) );
     } );
   }
@@ -299,15 +323,7 @@ function createTodo( id, obj, parentID ) {
   obj.childs && loadTabContent( obj.childs, todo._( '.to-do__childs' ), id );
 
   ( parentID !== null ) && ( todo._( '.to-do' ).parentID = parentID );
-  todo._( '.to-do__checkbox-input' ).get( 0, true ).on( 'click', function () {
-    if ( parentID !== null ) getCurrentTabItems()[ parentID ].childs[ id ].done = this.checked
-    else {
-      getCurrentTabItems()[ id ].done = this.checked;
-      DATA.tabs[ Math.abs( DATA.active_tab - 1 ) ].items.unshift( getCurrentTabItems()[ id ] )
-      todoRemove.call( this );
-    }
-    tabsSave();
-  } )
+  todo._( '.to-do__checkbox-input' ).get( 0, true ).on( 'click', function () { todoCheckChange.call( this, id, parentID ) } );
 
   /**
    * -------------------------
