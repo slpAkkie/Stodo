@@ -4,8 +4,8 @@
  * Скрипты предоставлены для queryLight (ql)
  *
  * Author: Alexandr Shamanin (@slpAkkie)
- * Version: 1.0.4
- * File Version: 1.0.12
+ * Version: 1.0.5
+ * File Version: 1.0.15
 */
 
 
@@ -39,12 +39,21 @@ function qL( input, parent = null ) {
     removeClass( classString ) { this.each( el => el.classList.remove( classString ) ); return this },
     toggleClass( classString ) { this.each( el => _( el ).hasClass( classString ) ? _( el ).removeClass( classString ) : _( el ).addClass( classString ) ) },
     hasClass( classString ) { return this.__elements.some( el => el.classList.contains( classString ) ) },
-    on( eventName, callback ) {
-      this.each( function ( el ) { el.addEventListener( eventName, callback.bind( _( this ) ) ) } );
-
+    on( eventName, callback, alias = null ) {
+      this.each( function ( el ) {
+        let handler = alias ? ( el[ `Handler_${alias}` ] = callback.bind( _( this ) ) ) : callback.bind( _( this ) );
+        el.addEventListener( eventName, handler );
+      } );
       return this
     },
-    each( callback ) { this.__elements.forEach( el => callback.call( _( el ), _( el ) ) ); return this },
+    removeOn( eventName, alias ) {
+      this.each( function ( el ) {
+        let handler = el.get()[ `Handler_${alias}` ] || null;
+        if ( handler !== null ) el.removeEventListener( eventName, handler );
+      } );
+      return this
+    },
+    each( callback ) { this.__elements.forEach( ( el, i ) => callback.call( _( el ), _( el ), i ) ); return this },
     insertBefore( sibling ) {
       this.__aloneRequire();
 
@@ -58,10 +67,10 @@ function qL( input, parent = null ) {
       return sibling
     },
     insertAfter( sibling ) {
-      let nextSibling = this.nextSibling;
+      let nextSibling = _( this.nextElementSibling );
       nextSibling
-        ? this.parent.insertBefore( sibling, this.nextSibling )
-        : this.parent.appendChild( sibling );
+        ? nextSibling.insertBefore( sibling )
+        : this.parent().insert( sibling );
 
       return sibling
     },
@@ -109,6 +118,11 @@ function qL( input, parent = null ) {
 
       return value || this.innerText;
     },
+    val( val = null ) {
+      val && ( this.value = val );
+
+      return this.value;
+    },
     len() { return this.__elements.length },
     parent( selector = null ) {
       if ( !selector ) return _( this.parentElement );
@@ -124,6 +138,7 @@ function qL( input, parent = null ) {
       return parent;
     },
     prev() { return _( this.previousElementSibling ) },
+    next() { return _( this.nextElementSibling ) },
     elements() {
       this.__aloneRequire();
 
@@ -150,6 +165,20 @@ function qL( input, parent = null ) {
       if ( withGETQuery && this.__aloneRequire() ) return { GETQuery: GETQueryFrom( formsData[ 0 ] ), formData: formsData[ 0 ] };
       return formsData.length > 1 ? formsData : ( formsData.length === 1 ? formsData[ 0 ] : null );
     },
+    equalTo( element ) {
+      this.__aloneRequire();
+
+      return this.get() === ( element.ql ? element.get() : element );
+    },
+    inCollection( element ) {
+      inCollection = false;
+
+      this.each( el => {
+        if ( el.equalTo( element ) ) inCollection = true;
+      } );
+
+      return inCollection;
+    },
 
 
 
@@ -157,6 +186,7 @@ function qL( input, parent = null ) {
     __aloneRequire() { if ( this.len() > 1 ) throw new Error( `Коллекция состоит из ${this.len()} элементов. Я не понимаю для какого элемента вы хотите получить значение` ); return true },
     __push( element ) {
       ( element instanceof Element || element.qL )
+        && !this.inCollection( element )
         && this.__elements.push( element.qL ? element.get() : element );
       return this
     },
@@ -165,7 +195,7 @@ function qL( input, parent = null ) {
 
 
   /** Проверка на входные параметры */
-  if ( parent && parent.qL && parent.__aloneRequire() ) parent = parent.get();
+  if ( parent && parent.qL && parent.__aloneRequire() ) parent = parent.get()
   else if ( !( parent instanceof Element ) ) {
     if ( parent !== null ) throw new Error( 'Родительский элемент не был DOM элементом. Если вы использовали элемент, взятый с помощью qL убедитесь что получили конкретный DOM элемент' );
     parent = document;
@@ -173,8 +203,8 @@ function qL( input, parent = null ) {
 
   if ( input && input.qL === true ) return input;
 
-  if ( typeof input === 'string' ) queryLight.__elements = Array.from( parent.querySelectorAll( input ) );
-  else if ( input instanceof Element || input instanceof Window || input instanceof Document ) queryLight.__elements = [ input ];
+  if ( typeof input === 'string' ) queryLight.__elements = Array.from( parent.querySelectorAll( input ) )
+  else if ( input instanceof Element || input instanceof Window || input instanceof Document ) queryLight.__elements = [ input ]
   else return null;
   if ( queryLight.len() === 0 ) return null;
 
@@ -188,7 +218,7 @@ function qL( input, parent = null ) {
         target = target.get();
         let gotten = Reflect.get( target, prop );
 
-        if ( typeof gotten === 'function' ) return gotten.bind( target );
+        if ( typeof gotten === 'function' ) return gotten.bind( target )
         else return gotten;
       }
 
