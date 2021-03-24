@@ -137,9 +137,9 @@ function popupDelete() {
  * --------------------------------------------------
  * Change value in the popup title input */
 
-function popupWriteInTitle() {
-  _( '.popup__title' ).hasClass( 'popup__title_wrong' )
-    && _( '.popup__title' ).removeClass( 'popup__title_wrong' )
+function popupWrongChanged() {
+  this.removeClass( 'popup__wrong' );
+  this.removeOn( 'input', 'popupWrongChanged' );
 }
 
 /**
@@ -190,15 +190,28 @@ function createEditableSub( obj = null ) {
  * Todo save */
 
 function todoSave() {
-  let PPP_TMPDT = new Object();
-  PPP_TMPDT.title = _( '.popup__title' ).value;
+  let PPP_TMPDT = new Object(),
+    title = _( '.popup__title' ),
+    until = _( '.popup__until' );
+  PPP_TMPDT.title = title.value;
   PPP_TMPDT.until = _( '.popup__until' ).value || null;
   PPP_TMPDT.done = _( '.popup__done' ).checked || false;
   PPP_TMPDT.childs = [];
 
+  let errCount = 0;
+
   if ( PPP_TMPDT.title === '' ) {
-    alert( 'Название должно быть заполнено' );
-    _( '.popup__title' ).addClass( 'popup__title_wrong' );
+    title.addClass( 'popup__wrong' );
+    errCount++;
+  }
+
+  if ( until.valueAsDate < Date.now() ) {
+    until.addClass( 'popup__wrong' );
+    errCount++;
+  }
+
+  if ( errCount ) {
+    _( '.popup__wrong' ).on( 'input', popupWrongChanged, 'popupWrongChanged' );
     return;
   }
 
@@ -458,9 +471,6 @@ _( '.tabs__tab' ).on( 'click', switchTab );
 
 // --------------------------------------------------
 _( '#js-add-new' ).on( 'click', popupOpen );
-
-// --------------------------------------------------
-_( '.popup__title' ).on( 'input', popupWriteInTitle );
 
 // --------------------------------------------------
 _( '.popup__close-button' ).on( 'click', popupClose );

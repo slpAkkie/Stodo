@@ -150,9 +150,11 @@
 
 }
 
-.popup__title_wrong {
-  border-color: #ff6161 !important;
-}
+/*
+ * --------------------------------------------------
+ * Popup wrong fields */
+
+.popup__wrong { border-color: #ff6161 !important }
 
 /*
  * --------------------------------------------------
