@@ -205,24 +205,30 @@ function todoSave() {
     errCount++;
   }
 
-  if ( until.valueAsDate < Date.now() ) {
+  if ( until.valueAsDate && until.valueAsDate < Date.now() ) {
     until.addClass( 'popup__wrong' );
     errCount++;
   }
+
+  _( '.popup__todo-editable-child' )?.each( el => {
+    let title = el._( '.popup__todo-editable-child-title' ), sub = {
+      title: title.value,
+      done: el._( '.popup__todo-editable-child-done' ).checked,
+    };
+
+    if ( !sub.title ) {
+      errCount++;
+      title.addClass( 'popup__wrong' );
+      title.on( 'input', popupWrongChanged, 'popupWrongChanged' );
+    }
+
+    PPP_TMPDT.childs.push( sub );
+  } );
 
   if ( errCount ) {
     _( '.popup__wrong' ).on( 'input', popupWrongChanged, 'popupWrongChanged' );
     return;
   }
-
-  _( '.popup__todo-editable-child' )?.each( el => {
-    let sub = {
-      title: el._( '.popup__todo-editable-child-title' ).value,
-      done: el._( '.popup__todo-editable-child-done' ).checked,
-    };
-
-    PPP_TMPDT.childs.push( sub );
-  } );
 
   !PPP_TMPDT.childs.length && ( PPP_TMPDT.childs = null );
 
@@ -417,7 +423,7 @@ function dataLoad() {
   DATA.active_tab = LS.get( 'active_tab' );
   DATA.title = LS.get( 'title' );
 
-  return DATA.tabs && DATA.active_tab && DATA.title;
+  return DATA.tabs && DATA.active_tab !== null && DATA.title;
 }
 
 /**
@@ -436,7 +442,7 @@ function rerender() {
  * Init App */
 
 let DATA = {};
-dataLoad() || ( DATA = DEF_DATA );
+dataLoad() || ( DATA = DEF_DATA ) && dataSave();
 DATA.editingMode = false;
 DATA.editTodoID = null;
 DATA.editTodoParentID = null;
