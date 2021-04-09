@@ -38,30 +38,64 @@ let tabs = {
 
 const task = {
 
+  /**
+   * Tasks container
+   */
   container: '.todos-container',
-
   get containerEl() { return selectEl(this.container) },
 
+  /**
+   * Open popup window to create new task
+   */
   create() {
     popup.mode = 'create';
     popup.show();
   },
 
+  /**
+   * Delete task
+   */
   delete() { },
 
+  /**
+   * Open popup window to edit task
+   */
   edit() {
     data.editID = this.dataID;
     popup.show();
   },
 
+  /**
+   * Set task as completed
+   */
   setCompleted() { },
 
+  /**
+   * Save tasks and rerender
+   */
   save() { },
 
+  /**
+   * Filter tasks
+   *
+   * @param criteria
+   */
   filter( criteria = [] ) { },
 
+  /**
+   * Calculate status from the until date and time
+   *
+   * @returns {Array}
+   */
   calculateStatus() { return ['Скоро', '_text-success'] },
 
+  /**
+   * Render task
+   *
+   * @param data
+   * @param id
+   * @returns {ChildNode}
+   */
   render(data, id) {
     let {title, completed, until, subs} = data;
     let [status, statusClass] = this.calculateStatus(until);
@@ -100,6 +134,14 @@ const task = {
     return todo;
   },
 
+  /**
+   * Render sub task
+   *
+   * @param data
+   * @param parentID
+   * @param id
+   * @returns {Element}
+   */
   renderSub(data, parentID, id) {
     let {title, completed} = data;
 
@@ -117,6 +159,9 @@ const task = {
     return sub;
   },
 
+  /**
+   * Move task between tabs
+   */
   move() { },
 
 };
@@ -125,19 +170,41 @@ const task = {
 
 /**
  * --------------------------------------------------
- * General functions
+ * Helpers
  */
 
+/**
+ * Create element from markup
+ *
+ * @param markup
+ * @returns {ChildNode}
+ */
 function createEl(markup) {
   let template = document.createElement('template');
   template.innerHTML = markup.trim();
   return template.content.firstChild;
 }
 
+/**
+ * Insert element first in the parent
+ *
+ * @param parent
+ * @param child
+ */
 function insertFirst(parent, child) {
   parent.insertBefore(child, parent.firstChild)
 }
 
+
+
+/**
+ * --------------------------------------------------
+ * General functions
+ */
+
+/**
+ * Render tasks to the task container
+ */
 function render() {
   let todosContainer = task.containerEl,
       todos = tabs[data.currentTab];
@@ -148,6 +215,9 @@ function render() {
 
 function extractFilters() { }
 
+/**
+ * Switch tab
+ */
 function tabSwitch() {
     let id = data.active_tab = +!data.active_tab;
     toggleClass(selectEl(`.tab[data-id="${id}"]`), 'active');
@@ -170,21 +240,29 @@ const popup = {
    */
   mode: 'create',
 
-  subContainerSelector: '#js-subs-container',
+  /**
+   * Sub container
+   */
   emptySubContainerClass: 'popup__subs-container_empty',
-
+  subContainerSelector: '#js-subs-container',
   get subContainerEl() { return selectEl(this.subContainerSelector) },
-
   get subs() { return selectEl('.popup__sub', this.subContainerEl) },
 
+  /**
+   * Popup window
+   */
   selector: '.popup',
-
   get el() { return selectEl(this.selector) },
 
+  /**
+   * Popup's control buttons
+   */
   controlButtonsSelector: '.popup__control-button',
-
   get controlButtons() { return selectEl(this.controlButtonsSelector) },
 
+  /**
+   * Show popup and generate control buttons
+   */
   show() {
     let editMode = this.mode === 'edit';
 
@@ -207,11 +285,17 @@ const popup = {
     addClass(this.el, '_shown');
   },
 
+  /**
+   * Hide popup
+   */
   hide() {
     data.editID = null;
     removeClass(this.el, '_shown');
   },
 
+  /**
+   * Reset input data in the popup
+   */
   reset() {
     selectEl('#js-popup-title').value = null;
     selectEl('#js-popup-date').value = null;
@@ -223,8 +307,18 @@ const popup = {
     this.controlButtons.innerHTML = null;
   },
 
+  /**
+   * Fill popup fields with data
+   *
+   * @param data
+   */
   fill( data = {} ) { },
 
+  /**
+   * Get data from popup
+   *
+   * @returns {Object}
+   */
   getData() {
     let data = {until: {}};
     data.title = selectEl('#js-popup-title').value;
@@ -236,6 +330,11 @@ const popup = {
     return data;
   },
 
+  /**
+   * Get array of subs data
+   *
+   * @returns {Array}
+   */
   getSubsData() {
     let data = [];
     each(this.subs, el => {
@@ -248,6 +347,9 @@ const popup = {
     return data;
   },
 
+  /**
+   * Add new sub task to the popup
+   */
   addSub() {
     let markup = `
       <div class="popup__sub row _align-center">
@@ -265,6 +367,9 @@ const popup = {
     selectEl('.popup__sub-delete-button', sub).addEventListener('click', this.removeSub);
   },
 
+  /**
+   * Remove sub task from the popup
+   */
   removeSub() {
     this.parentElement.remove();
 
@@ -282,11 +387,25 @@ const popup = {
 
 const ls = {
 
+  /**
+   * Save value in the localStorage
+   *
+   * @param key
+   * @param value
+   * @returns {*}
+   */
   set( key, value ) {
     localStorage.setItem(key, JSON.stringify({data: value}));
     return value;
   },
 
+  /**
+   * Get value from the localStorage
+   *
+   * @param key
+   * @param defaultValue
+   * @returns {*|null}
+   */
   get( key, defaultValue = null ) {
     let gotten = localStorage.getItem(key);
     return gotten ? JSON.parse(gotten).data : (defaultValue || null);
@@ -301,6 +420,13 @@ const ls = {
  * Additions
  */
 
+/**
+ * Select elements by selector (As array if more than one)
+ *
+ * @param selector
+ * @param parent
+ * @returns {null|Element[]|Element}
+ */
 function selectEl(selector, parent = document) {
   let els = parent.querySelectorAll(selector);
   switch (els.length) {
@@ -310,24 +436,56 @@ function selectEl(selector, parent = document) {
   }
 }
 
+/**
+ * Exec callback at the element (or elements)
+ *
+ * @param els
+ * @param callback
+ */
 function each(els, callback) {
   if (!Array.isArray(els)) els = [els];
 
   els.forEach( (el, i) => { callback.call(el, el) } )
 }
 
+/**
+ * Check if element has class
+ *
+ * @param el
+ * @param className
+ * @returns {boolean}
+ */
 function hasClass(el, className) {
   return el.classList.contains(className);
 }
 
+/**
+ * Add element's class
+ *
+ * @param el
+ * @param className
+ */
 function addClass(el, className) {
   return el.classList.add(className);
 }
 
+/**
+ * Remove element's class
+ *
+ * @param el
+ * @param className
+ */
 function removeClass(el, className) {
   return el.classList.remove(className);
 }
 
+/**
+ * Toggle element's class
+ *
+ * @param el
+ * @param className
+ * @returns {void}
+ */
 function toggleClass(el, className) {
   if (hasClass(el, className))
     return removeClass(el, className);
