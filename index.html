@@ -31,12 +31,12 @@
 
     <div class="page-search">
       <label>
-        <input type="text" id="search_query" class="page-search__input _w-100 input" placeholder="Поиск">
+        <input type="text" id="js-search-query" class="page-search__input _w-100 input" placeholder="Поиск">
       </label>
     </div>
 
     <div class="_flex _justify-center _mt-4 _mb-4">
-      <input type="button" value="Добавить" class="button" id="add-todo">
+      <input type="button" value="Добавить" class="button" id="js-todo-add">
     </div>
 
     <div class="tabs _flex sm:col lg:row _justify-evenly">
@@ -49,6 +49,55 @@
     </div>
 
     <div class="todos-container"></div>
+
+    <div class="popup _fullscreen _shown">
+      <div class="popup__inner">
+        <div class="popup__header row _justify-between">
+          <div class="popup__heading"></div>
+          <div class="popup__close" id="js-popup-close">
+            <span class="_text-bold">Закрыть</span>
+          </div>
+        </div>
+        <div class="popup__body">
+          <div class="popup__title popup-row">
+            <label class="_w-100 col">
+              <span class="_text-semi-bold">Название</span>
+              <input type="text" class="input _mt-2" id="js-popup-title" placeholder="Сделать домашнюю работу">
+            </label>
+          </div>
+          <div class="popup__until popup-row _flex lg:row sm:col _justify-evenly">
+            <label class="col _w-100 _grow lg:_mr-2">
+              <span>День</span>
+              <input type="date" class="input" id="js-popup-date">
+            </label>
+            <label class="col _w-100 _grow lg:_ml-2 sm:_mt-2">
+              <span>Время</span>
+              <input type="time" class="input" id="js-popup-time">
+            </label>
+          </div>
+          <div class="popup__completed popup-row">
+            <label class="_flex _align-center">
+              <input type="checkbox" id="js-popup-completed">
+              <span class="_ml-2">Выполнено</span>
+            </label>
+          </div>
+          <div class="popup__subs popup-row">
+            <div class="popup__subs-header row _justify-between _align-center">
+              <span>Подзадачи</span>
+              <input type="button" value="Добавить" class="button">
+            </div>
+            <div class="popup__subs-container _mt-2">
+              <div class="popup__sub row _align-center">
+                <input type="checkbox">
+                <input type="text" class="popup__sub-title input _grow _ml-4">
+                <span class="_ml-2 _font-small _text-danger _text-semi-bold">Удалить</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="popup__overlay _fullscreen"></div>
+    </div>
 
   </div>
 

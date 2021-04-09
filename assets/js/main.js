@@ -37,29 +37,33 @@ let tabs = {
 
 const task = {
 
-  container: null,
+  container: '.todos-container',
 
-  add() { },
+  get containerEl() { return selectEl(this.container) },
 
-  setCompleted() { },
+  create() { },
 
   delete() { },
 
+  edit(todoEl) { },
+
+  setCompleted() { },
+
+  save() { },
+
   filter( criteria = [] ) { },
 
-  edit() { },
+  calculateStatus() { return ['Скоро', '_text-success'] },
 
-  calculateStatus() { return ['Скоро', '_text-green'] },
-
-  render(data = {}) {
+  render(data, id) {
     let {title, completed, until, subs} = data;
     let [status, statusClass] = this.calculateStatus(until);
     let isSubs = subs.length;
 
     let markup = `<div class="todo">
-      <div class="todo__inner row _align-center">
+      <div class="todo__inner row">
         <div class="col">
-          <input class="todo__completed-checkbox" type="checkbox" ${completed ? 'checked' : ''}>
+          <input class="todo__completed-checkbox _mt-1" type="checkbox" ${completed ? 'checked' : ''}>
         </div>
         <div class="_flex sm:col lg:row _grow _justify-between _ml-4">
           <div class="todo__title">
@@ -77,15 +81,17 @@ const task = {
 
     if (isSubs) {
       let subContainer = selectEl('.todo__subs', todo);
-      subs.forEach(sub => {
-        subContainer.append(task.renderSub(sub));
+      subs.forEach((sub, subID) => {
+        subContainer.append(task.renderSub(sub, id, subID));
       });
     }
+
+    todo.dataID = id;
 
     return todo;
   },
 
-  renderSub(data) {
+  renderSub(data, parentID, id) {
     let {title, completed} = data;
 
     let markup = `<div class="sub-todo row _align-center">
@@ -95,7 +101,11 @@ const task = {
       </div>
     </div>`;
 
-    return createEl(markup);
+    let sub = createEl(markup);
+    sub.parentID = parentID;
+    sub.dataID = id;
+
+    return sub;
   },
 
   move() { },
@@ -116,10 +126,11 @@ function createEl(markup) {
 }
 
 function render() {
-  let todosContainer = selectEl('.todos-container'),
+  let todosContainer = task.containerEl,
       todos = tabs[data.currentTab];
+  todosContainer.innerHTML = null;
   if (!todos.length) todosContainer.append(createEl(`<h3 class="_text-center">В этом списке нет задач</h3>`));
-  else todos.forEach(todo => todosContainer.insertBefore(task.render(todo), todosContainer.firstChild));
+  else todos.forEach((todo, id) => todosContainer.insertBefore(task.render(todo, id), todosContainer.firstChild));
 }
 
 function extractFilters() { }
@@ -128,6 +139,7 @@ function tabSwitch() {
     let id = data.active_tab = +!data.active_tab;
     toggleClass(selectEl(`.tab[data-id="${id}"]`), 'active');
     toggleClass(selectEl(`.tab[data-id="${+!id}"]`), 'active');
+    render()
 }
 
 
@@ -139,9 +151,15 @@ function tabSwitch() {
 
 const popup = {
 
+  selector: '.popup',
+
+  get el() { return selectEl(this.selector) },
+
   show() { },
 
-  hide() { },
+  hide() {
+    removeClass(this.el, '_shown');
+  },
 
   reset() { },
 
@@ -219,6 +237,7 @@ function toggleClass(el, className) {
 
 window.addEventListener('DOMContentLoaded', function () {
 
+  /** Load saved tabs data or default and save it */
   let loadedTabs = ls.get('tabs');
   if (!loadedTabs) ls.set('tabs', tabs);
   else tabs = loadedTabs;
@@ -231,5 +250,11 @@ window.addEventListener('DOMContentLoaded', function () {
       selectEl('.tab'),
       el => el.addEventListener('click', tabSwitch)
   );
+
+  /** Click on todo */
+  selectEl('.todos-container').addEventListener('click', task.edit);
+
+  /** Close popup */
+  selectEl('#js-popup-close').addEventListener('click', popup.hide.bind(popup));
 
 });
