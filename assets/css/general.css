@@ -3,10 +3,13 @@
  * Grid */
 
 .container {
-  max-width: 1200px;
+  max-width: 860px;
 
   padding-left: 30px;
   padding-right: 30px;
+
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .row {
@@ -19,9 +22,21 @@
   flex-direction: column;
 }
 
+@media screen and (max-width: 554px) {
+
+  .sm\:col { flex-direction: column }
+
+}
+
+@media screen and (min-width: 555px) {
+
+  .lg\:row { flex-direction: row }
+
+}
+
 /*
  * --------------------------------------------------
- * Modificators */
+ * Modifications */
 
 ._flex { display: flex }
 
@@ -32,13 +47,82 @@
 ._justify-evenly { justify-content: space-evenly }
 ._justify-end { justify-content: flex-end }
 
+._align-center { align-items: center }
+._align-start { align-items: flex-start }
+._align-end { align-items: flex-end }
+
+._grow { flex-grow: 1 }
+
 ._ml-1 { margin-left: 1em }
+._mr-1 { margin-right: 1em }
 ._mt-1 { margin-top: 1em }
+._mb-1 { margin-bottom: 1em }
 
 ._text-center { text-align: center }
+
+._w-100 { width: 100% }
+
+/* -------------------------------------------------- */
+
+.input, .button {
+
+  border: 1px solid var(--c-light-3);
+  border-radius: .25em;
+
+}
+
+.input { padding: 4px 15px }
+
+.button {
+  padding: 4px 20px;
+
+  font-variation-settings: 'wght' 555;
+
+  background-color: var(--c-light-1);
+
+  cursor: pointer;
+  transition: background-color .25s ease-out;
+}
+
+.button:hover { background-color: var(--c-light-3) }
 
 
 
 /*
  * --------------------------------------------------
  * Main site styles */
+
+body { min-width: 320px }
+
+body,
+input { font-family: 'Raleway', sans-serif }
+
+.page-header {
+  padding-top: 45px;
+  padding-bottom: 45px;
+}
+
+.tab {
+  padding-top: 15px;
+  padding-bottom: 15px;
+
+  font-size: 1.15em;
+  font-variation-settings: 'wght' 450;
+
+  background-color: var(--c-light-1);
+
+  cursor: pointer;
+  transition: all .1s ease-out;
+}
+
+.tab:not(.active):hover { background-color: var(--c-light-2) }
+
+.tab.active {
+  color: white;
+  background-color: var(--c-primary);
+}
+
+.todos-container {
+  padding: 15px;
+  border: 1px solid var(--c-primary);
+}
