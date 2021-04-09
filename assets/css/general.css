@@ -290,3 +290,5 @@ input { font-family: 'Raleway', sans-serif }
 }
 
 .popup__subs-container_empty { display: none }
+
+.popup__sub-delete-button { cursor: pointer }
