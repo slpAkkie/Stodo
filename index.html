@@ -25,7 +25,32 @@
   Page container -->
   <div class="container">
 
+    <div class="page-header">
+      <h1 class="page-header__title _text-center">Задачи</h1>
+    </div>
 
+    <div class="page-search">
+      <label>
+        <input type="text" id="search_query" class="page-search__input _w-100 input" placeholder="Поиск">
+      </label>
+    </div>
+
+    <div class="_flex _justify-center _mt-1 _mb-1">
+      <input type="button" value="Добавить" class="button" id="add-todo">
+    </div>
+
+    <div class="tabs _flex sm:col lg:row _justify-evenly">
+      <div class="tab _flex _justify-center _align-center _grow active" data-id="0">
+        <span>Активные</span>
+      </div>
+      <div class="tab _flex _justify-center _align-center _grow" data-id="1">
+        <span>Завершенные</span>
+      </div>
+    </div>
+
+    <div class="todos-container">
+
+    </div>
 
   </div>
 
