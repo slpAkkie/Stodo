@@ -42,7 +42,7 @@ const task = {
    * Tasks container
    */
   container: '.todos-container',
-  get containerEl() { return selectEl(this.container) },
+  get containerEl() { return selectEl( this.container ) },
 
   /**
    * Open popup window to create new task
@@ -87,7 +87,14 @@ const task = {
    *
    * @returns {Array}
    */
-  calculateStatus() { return ['Скоро', '_text-success'] },
+  calculateStatus( until ) {
+    let date = new Date(`${until.date.replace(/(\d+).(\d+).(\d+)/, '$3-$2-$1')} ${until.time}`);
+    let dateDiff = date - Date.now();
+    if (dateDiff < 0) return ['Просрочено', '_text-danger'];
+    else if ((dateDiff = (dateDiff / 1000 / 3600 / 24)) <= 1) return ['Сегодня', '_text-success'];
+    else if (dateDiff <= 2) return ['Завтра', '_text-success'];
+    return [ `${until.date} ${until.time}`, '_text-success' ];
+  },
 
   /**
    * Render task
@@ -96,9 +103,9 @@ const task = {
    * @param id
    * @returns {ChildNode}
    */
-  render(data, id) {
-    let {title, completed, until, subs} = data;
-    let [status, statusClass] = this.calculateStatus(until);
+  render( data, id ) {
+    let { title, completed, until, subs } = data;
+    let [ status, statusClass ] = this.calculateStatus( until );
     let isSubs = subs.length;
 
     let markup = `<div class="todo">
@@ -118,18 +125,18 @@ const task = {
       ${isSubs ? '<div class="todo__subs"></div>' : ''}
     </div>`;
 
-    let todo = createEl(markup);
+    let todo = createEl( markup );
 
-    if (isSubs) {
-      let subContainer = selectEl('.todo__subs', todo);
-      subs.forEach((sub, subID) => {
-        subContainer.append(task.renderSub(sub, id, subID));
-      });
+    if ( isSubs ) {
+      let subContainer = selectEl( '.todo__subs', todo );
+      subs.forEach( ( sub, subID ) => {
+        subContainer.append( task.renderSub( sub, id, subID ) );
+      } );
     }
 
     todo.dataID = id;
 
-    selectEl('.todo__title-wrapper', todo).addEventListener('click', task.edit.bind(todo));
+    selectEl( '.todo__title-wrapper', todo ).addEventListener( 'click', task.edit.bind( todo ) );
 
     return todo;
   },
@@ -142,8 +149,8 @@ const task = {
    * @param id
    * @returns {Element}
    */
-  renderSub(data, parentID, id) {
-    let {title, completed} = data;
+  renderSub( data, parentID, id ) {
+    let { title, completed } = data;
 
     let markup = `<div class="sub-todo row _align-center">
       <input class="todo__completed-checkbox" type="checkbox" ${completed ? 'checked' : ''}>
@@ -152,7 +159,7 @@ const task = {
       </div>
     </div>`;
 
-    let sub = createEl(markup);
+    let sub = createEl( markup );
     sub.parentID = parentID;
     sub.dataID = id;
 
@@ -179,8 +186,8 @@ const task = {
  * @param markup
  * @returns {ChildNode}
  */
-function createEl(markup) {
-  let template = document.createElement('template');
+function createEl( markup ) {
+  let template = document.createElement( 'template' );
   template.innerHTML = markup.trim();
   return template.content.firstChild;
 }
@@ -191,8 +198,8 @@ function createEl(markup) {
  * @param parent
  * @param child
  */
-function insertFirst(parent, child) {
-  parent.insertBefore(child, parent.firstChild)
+function insertFirst( parent, child ) {
+  parent.insertBefore( child, parent.firstChild )
 }
 
 
@@ -207,10 +214,10 @@ function insertFirst(parent, child) {
  */
 function render() {
   let todosContainer = task.containerEl,
-      todos = tabs[data.currentTab];
+    todos = tabs[ data.currentTab ];
   todosContainer.innerHTML = null;
-  if (!todos.length) todosContainer.append(createEl(`<h3 class="_text-center">В этом списке нет задач</h3>`));
-  else todos.forEach((todo, id) => insertFirst(todosContainer, task.render(todo, id)));
+  if ( !todos.length ) todosContainer.append( createEl( `<h3 class="_text-center">В этом списке нет задач</h3>` ) );
+  else todos.forEach( ( todo, id ) => insertFirst( todosContainer, task.render( todo, id ) ) );
 }
 
 function extractFilters() { }
@@ -219,10 +226,10 @@ function extractFilters() { }
  * Switch tab
  */
 function tabSwitch() {
-    let id = data.active_tab = +!data.active_tab;
-    toggleClass(selectEl(`.tab[data-id="${id}"]`), 'active');
-    toggleClass(selectEl(`.tab[data-id="${+!id}"]`), 'active');
-    render()
+  let id = data.active_tab = +!data.active_tab;
+  toggleClass( selectEl( `.tab[data-id="${id}"]` ), 'active' );
+  toggleClass( selectEl( `.tab[data-id="${+!id}"]` ), 'active' );
+  render()
 }
 
 
@@ -245,20 +252,20 @@ const popup = {
    */
   emptySubContainerClass: 'popup__subs-container_empty',
   subContainerSelector: '#js-subs-container',
-  get subContainerEl() { return selectEl(this.subContainerSelector) },
-  get subs() { return selectEl('.popup__sub', this.subContainerEl) },
+  get subContainerEl() { return selectEl( this.subContainerSelector ) },
+  get subs() { return selectEl( '.popup__sub', this.subContainerEl ) },
 
   /**
    * Popup window
    */
   selector: '.popup',
-  get el() { return selectEl(this.selector) },
+  get el() { return selectEl( this.selector ) },
 
   /**
    * Popup's control buttons
    */
   controlButtonsSelector: '.popup__control-button',
-  get controlButtons() { return selectEl(this.controlButtonsSelector) },
+  get controlButtons() { return selectEl( this.controlButtonsSelector ) },
 
   /**
    * Show popup and generate control buttons
@@ -268,21 +275,21 @@ const popup = {
 
     popup.reset();
 
-    let cancelButton = createEl(`<input type="button" value="Отменить" class="button popup__cancel">`);
-    this.controlButtons.append(cancelButton);
-    cancelButton.addEventListener('click', popup.hide.bind(popup));
+    let cancelButton = createEl( `<input type="button" value="Отменить" class="button popup__cancel">` );
+    this.controlButtons.append( cancelButton );
+    cancelButton.addEventListener( 'click', popup.hide.bind( popup ) );
 
-    if (editMode) {
-      let deleteButton = createEl(`<input type="button" value="Удалить" class="button button_danger popup__delete _ml-2">`);
-      this.controlButtons.append(deleteButton);
-      deleteButton.addEventListener('click', task.delete);
+    if ( editMode ) {
+      let deleteButton = createEl( `<input type="button" value="Удалить" class="button button_danger popup__delete _ml-2">` );
+      this.controlButtons.append( deleteButton );
+      deleteButton.addEventListener( 'click', task.delete );
     }
 
-    let saveButton = createEl(`<input type="button" value="${editMode ? 'Сохранить' : 'Создать'}" class="button button_success popup__save _ml-2">`);
-    this.controlButtons.append(saveButton);
-    saveButton.addEventListener('click', task.save);
+    let saveButton = createEl( `<input type="button" value="${editMode ? 'Сохранить' : 'Создать'}" class="button button_success popup__save _ml-2">` );
+    this.controlButtons.append( saveButton );
+    saveButton.addEventListener( 'click', task.save );
 
-    addClass(this.el, '_shown');
+    addClass( this.el, '_shown' );
   },
 
   /**
@@ -290,19 +297,19 @@ const popup = {
    */
   hide() {
     data.editID = null;
-    removeClass(this.el, '_shown');
+    removeClass( this.el, '_shown' );
   },
 
   /**
    * Reset input data in the popup
    */
   reset() {
-    selectEl('#js-popup-title').value = null;
-    selectEl('#js-popup-date').value = null;
-    selectEl('#js-popup-time').value = null;
-    selectEl('#js-popup-completed').checked = false;
-    selectEl('#js-subs-container').innerHTML = null;
-    addClass(selectEl('#js-subs-container'), this.emptySubContainerClass);
+    selectEl( '#js-popup-title' ).value = null;
+    selectEl( '#js-popup-date' ).value = null;
+    selectEl( '#js-popup-time' ).value = null;
+    selectEl( '#js-popup-completed' ).checked = false;
+    selectEl( '#js-subs-container' ).innerHTML = null;
+    addClass( selectEl( '#js-subs-container' ), this.emptySubContainerClass );
 
     this.controlButtons.innerHTML = null;
   },
@@ -320,11 +327,11 @@ const popup = {
    * @returns {Object}
    */
   getData() {
-    let data = {until: {}};
-    data.title = selectEl('#js-popup-title').value;
-    data.until.date = selectEl('#js-popup-date').valueAsDate.toLocaleDateString();
-    data.until.time = selectEl('#js-popup-time').value;
-    data.completed = selectEl('#js-popup-completed').checked;
+    let data = { until: {} };
+    data.title = selectEl( '#js-popup-title' ).value;
+    data.until.date = selectEl( '#js-popup-date' ).valueAsDate.toLocaleDateString();
+    data.until.time = selectEl( '#js-popup-time' ).value;
+    data.completed = selectEl( '#js-popup-completed' ).checked;
     data.subs = this.getSubsData();
 
     return data;
@@ -337,12 +344,12 @@ const popup = {
    */
   getSubsData() {
     let data = [];
-    each(this.subs, el => {
-      data.push({
-        title: selectEl('.popup__sub-title', el).value,
-        completed: selectEl('.popup__sub-checkbox', el).checked,
-      })
-    });
+    each( this.subs, el => {
+      data.push( {
+        title: selectEl( '.popup__sub-title', el ).value,
+        completed: selectEl( '.popup__sub-checkbox', el ).checked,
+      } )
+    } );
 
     return data;
   },
@@ -360,11 +367,11 @@ const popup = {
     `;
 
     let subContainer = this.subContainerEl;
-    removeClass(subContainer, this.emptySubContainerClass);
-    let sub = createEl(markup);
-    subContainer.append(sub);
+    removeClass( subContainer, this.emptySubContainerClass );
+    let sub = createEl( markup );
+    subContainer.append( sub );
 
-    selectEl('.popup__sub-delete-button', sub).addEventListener('click', this.removeSub);
+    selectEl( '.popup__sub-delete-button', sub ).addEventListener( 'click', this.removeSub );
   },
 
   /**
@@ -373,7 +380,7 @@ const popup = {
   removeSub() {
     this.parentElement.remove();
 
-    if (!popup.subContainerEl.innerHTML) addClass(popup.subContainerEl, popup.emptySubContainerClass)
+    if ( !popup.subContainerEl.innerHTML ) addClass( popup.subContainerEl, popup.emptySubContainerClass )
   }
 
 };
@@ -395,7 +402,7 @@ const ls = {
    * @returns {*}
    */
   set( key, value ) {
-    localStorage.setItem(key, JSON.stringify({data: value}));
+    localStorage.setItem( key, JSON.stringify( { data: value } ) );
     return value;
   },
 
@@ -407,8 +414,8 @@ const ls = {
    * @returns {*|null}
    */
   get( key, defaultValue = null ) {
-    let gotten = localStorage.getItem(key);
-    return gotten ? JSON.parse(gotten).data : (defaultValue || null);
+    let gotten = localStorage.getItem( key );
+    return gotten ? JSON.parse( gotten ).data : ( defaultValue || null );
   },
 
 };
@@ -427,12 +434,12 @@ const ls = {
  * @param parent
  * @returns {null|Element[]|Element}
  */
-function selectEl(selector, parent = document) {
-  let els = parent.querySelectorAll(selector);
-  switch (els.length) {
+function selectEl( selector, parent = document ) {
+  let els = parent.querySelectorAll( selector );
+  switch ( els.length ) {
     case 0: return null;
-    case 1: return els[0];
-    default: return Array.from(els);
+    case 1: return els[ 0 ];
+    default: return Array.from( els );
   }
 }
 
@@ -442,10 +449,10 @@ function selectEl(selector, parent = document) {
  * @param els
  * @param callback
  */
-function each(els, callback) {
-  if (!Array.isArray(els)) els = [els];
+function each( els, callback ) {
+  if ( !Array.isArray( els ) ) els = [ els ];
 
-  els.forEach( (el, i) => { callback.call(el, el) } )
+  els.forEach( ( el, i ) => { callback.call( el, el ) } )
 }
 
 /**
@@ -455,8 +462,8 @@ function each(els, callback) {
  * @param className
  * @returns {boolean}
  */
-function hasClass(el, className) {
-  return el.classList.contains(className);
+function hasClass( el, className ) {
+  return el.classList.contains( className );
 }
 
 /**
@@ -465,8 +472,8 @@ function hasClass(el, className) {
  * @param el
  * @param className
  */
-function addClass(el, className) {
-  return el.classList.add(className);
+function addClass( el, className ) {
+  return el.classList.add( className );
 }
 
 /**
@@ -475,8 +482,8 @@ function addClass(el, className) {
  * @param el
  * @param className
  */
-function removeClass(el, className) {
-  return el.classList.remove(className);
+function removeClass( el, className ) {
+  return el.classList.remove( className );
 }
 
 /**
@@ -486,10 +493,10 @@ function removeClass(el, className) {
  * @param className
  * @returns {void}
  */
-function toggleClass(el, className) {
-  if (hasClass(el, className))
-    return removeClass(el, className);
-  return addClass(el, className);
+function toggleClass( el, className ) {
+  if ( hasClass( el, className ) )
+    return removeClass( el, className );
+  return addClass( el, className );
 }
 
 
@@ -499,11 +506,11 @@ function toggleClass(el, className) {
  * EventListeners
  */
 
-window.addEventListener('DOMContentLoaded', function () {
+window.addEventListener( 'DOMContentLoaded', function () {
 
   /** Load saved tabs data or default and save it */
-  let loadedTabs = ls.get('tabs');
-  if (!loadedTabs) ls.set('tabs', tabs);
+  let loadedTabs = ls.get( 'tabs' );
+  if ( !loadedTabs ) ls.set( 'tabs', tabs );
   else tabs = loadedTabs;
 
   /** First todos render */
@@ -511,17 +518,17 @@ window.addEventListener('DOMContentLoaded', function () {
 
   /** Switch tab */
   each(
-      selectEl('.tab'),
-      el => el.addEventListener('click', tabSwitch)
+    selectEl( '.tab' ),
+    el => el.addEventListener( 'click', tabSwitch )
   );
 
   /** Close popup */
-  selectEl('#js-popup-close').addEventListener('click', popup.hide.bind(popup));
+  selectEl( '#js-popup-close' ).addEventListener( 'click', popup.hide.bind( popup ) );
 
   /** Add sub task in popup */
-  selectEl('#js-add-sub').addEventListener('click', popup.addSub.bind(popup));
+  selectEl( '#js-add-sub' ).addEventListener( 'click', popup.addSub.bind( popup ) );
 
   /** Open form to create new task */
-  selectEl('#js-todo-add').addEventListener('click', task.create.bind(task))
+  selectEl( '#js-todo-add' ).addEventListener( 'click', task.create.bind( task ) )
 
-});
+} );
