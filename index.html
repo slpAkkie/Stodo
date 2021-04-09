@@ -50,7 +50,7 @@
 
     <div class="todos-container"></div>
 
-    <div class="popup _fullscreen _shown">
+    <div class="popup _fullscreen">
       <div class="popup__inner">
         <div class="popup__header row _justify-between">
           <div class="popup__heading"></div>
@@ -84,16 +84,11 @@
           <div class="popup__subs popup-row">
             <div class="popup__subs-header row _justify-between _align-center">
               <span>Подзадачи</span>
-              <input type="button" value="Добавить" class="button">
+              <input type="button" value="Добавить" class="button" id="js-add-sub">
             </div>
-            <div class="popup__subs-container _mt-2">
-              <div class="popup__sub row _align-center">
-                <input type="checkbox">
-                <input type="text" class="popup__sub-title input _grow _ml-4">
-                <span class="_ml-2 _font-small _text-danger _text-semi-bold">Удалить</span>
-              </div>
-            </div>
+            <div class="popup__subs-container _mt-2 popup__subs-container_empty" id="js-subs-container"></div>
           </div>
+          <div class="popup__control-button popup-row row _justify-end"></div>
         </div>
       </div>
       <div class="popup__overlay _fullscreen"></div>
