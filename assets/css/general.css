@@ -120,6 +120,26 @@
 
 .button:hover { background-color: var(--c-light-2) }
 
+.button_danger {
+  color: var(--c-danger);
+  border-color: var(--c-danger);
+}
+
+.button_danger:hover {
+  color: white;
+  background-color: var(--c-danger);
+}
+
+.button_success {
+  color: var(--c-success);
+  border-color: var(--c-success);
+}
+
+.button_success:hover {
+  color: white;
+  background-color: var(--c-success);
+}
+
 
 
 /*
@@ -259,6 +279,8 @@ input { font-family: 'Raleway', sans-serif }
   background-color: var(--c-light-1);
 }
 
+.popup__sub + .popup__sub { margin-top: 5px }
+
 .popup__subs-container {
   padding: 5px 10px;
 
@@ -266,3 +288,5 @@ input { font-family: 'Raleway', sans-serif }
   border: 1px solid var(--c-light-3);
   border-radius: .25em;
 }
+
+.popup__subs-container_empty { display: none }
