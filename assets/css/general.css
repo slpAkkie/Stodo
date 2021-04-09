@@ -1,0 +1,44 @@
+/*
+ * --------------------------------------------------
+ * Grid */
+
+.container {
+  max-width: 1200px;
+
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * --------------------------------------------------
+ * Modificators */
+
+._flex { display: flex }
+
+._justify-start { justify-content: flex-start }
+._justify-center { justify-content: center }
+._justify-between { justify-content: space-between }
+._justify-around { justify-content: space-around; }
+._justify-evenly { justify-content: space-evenly }
+._justify-end { justify-content: flex-end }
+
+._ml-1 { margin-left: 1em }
+._mt-1 { margin-top: 1em }
+
+._text-center { text-align: center }
+
+
+
+/*
+ * --------------------------------------------------
+ * Main site styles */

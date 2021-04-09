@@ -1,0 +1,19 @@
+/*
+ * --------------------------------------------------
+ * Variables */
+
+:root {
+
+  /* Colors */
+  --c-primary: #3f72af;
+  --c-secondary: #112d4e;
+  --c-secondary-op-1: #112d4e90;
+  --c-addict-1: #000;
+  --c-addict-2: #000;
+
+  --c-light-1: #f9f7f7;
+  --c-light-2: #dbe2ef;
+  --c-light-3: #c1cae0;
+  --c-black: #333333;
+
+}
