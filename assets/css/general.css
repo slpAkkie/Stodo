@@ -53,14 +53,22 @@
 
 ._grow { flex-grow: 1 }
 
-._ml-1 { margin-left: 1em }
-._mr-1 { margin-right: 1em }
-._mt-1 { margin-top: 1em }
-._mb-1 { margin-bottom: 1em }
+._ml-4 { margin-left: 1em }
+._mr-4 { margin-right: 1em }
+._mt-4 { margin-top: 1em }
+._mb-4 { margin-bottom: 1em }
 
 ._text-center { text-align: center }
 
+._text-bold { font-weight: bold }
+
 ._w-100 { width: 100% }
+
+@media screen and (max-width: 554px) {
+
+  .sm\:_mt-1 { margin-top: .25em }
+
+}
 
 /* -------------------------------------------------- */
 
@@ -146,6 +154,8 @@ input { font-family: 'Raleway', sans-serif }
 .todo__inner:hover { background-color: var(--c-light-2) }
 
 .todo__until-status_expired { color: red }
+
+.todo__title { font-variation-settings: 'wght' 555 }
 
 /* Subs */
 .todo__subs {
