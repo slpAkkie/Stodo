@@ -1,5 +1,16 @@
 /**
  * --------------------------------------------------
+ * Defaults
+ */
+
+const data = {
+  active_tab: 0,
+};
+
+
+
+/**
+ * --------------------------------------------------
  * Tabs data
  */
 
@@ -72,6 +83,12 @@ function render() { }
 
 function extractFilters() { }
 
+function tabSwitch() {
+    let id = data.active_tab = +!data.active_tab;
+    toggleClass(selectEl(`.tab[data-id="${id}"]`), 'active');
+    toggleClass(selectEl(`.tab[data-id="${+!id}"]`), 'active');
+}
+
 
 
 /**
@@ -105,3 +122,57 @@ const LS = {
   get( k, d = null ) { },
 
 };
+
+
+
+/**
+ * --------------------------------------------------
+ * Additions
+ */
+
+function selectEl(selector) {
+  let els = document.querySelectorAll(selector);
+  switch (els.length) {
+    case 0: return null;
+    case 1: return els[0];
+    default: return Array.from(els);
+  }
+}
+
+function each(els, callback) {
+  if (!Array.isArray(els)) els = [els];
+
+  els.forEach( (el, i) => { callback.call(el, el) } )
+}
+
+function hasClass(el, className) {
+  return el.classList.contains(className);
+}
+
+function addClass(el, className) {
+  return el.classList.add(className);
+}
+
+function removeClass(el, className) {
+  return el.classList.remove(className);
+}
+
+function toggleClass(el, className) {
+  if (hasClass(el, className))
+    return removeClass(el, className);
+  return addClass(el, className);
+}
+
+
+
+/**
+ * --------------------------------------------------
+ * EventListeners
+ */
+
+/** ---------------
+ * Switch tab */
+each(
+    selectEl('.tab'),
+    el => el.addEventListener('click', tabSwitch)
+);
