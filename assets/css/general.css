@@ -106,6 +106,7 @@
 }
 
 .input { padding: 4px 15px }
+.input_wrong { border-color: red }
 
 .button {
   padding: 4px 20px;
