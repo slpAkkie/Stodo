@@ -50,6 +50,11 @@ let tabs = {
 const task = {
 
   /**
+   * Is filter on
+   */
+  filterQuery: '',
+
+  /**
    * Filtered tasks
    */
   filtered: [],
@@ -181,30 +186,42 @@ const task = {
   },
 
   /**
-   * Filter tasks
+   * Handle changes in the search input
    */
-  filter() {
+  filterHandler() {
     task.filtered = [];
 
     if ( !this.value ) {
+      task.filterQuery = '';
       return render();
     }
 
-    let filterData = this.value.split( ' ' );
+    task.filterQuery = this.value;
+    task.filtered = task.filter( this.value );
+
+    render( task.filtered );
+  },
+
+  /**
+   * Filter tasks
+   */
+  filter( query ) {
+    let filtered = [];
+    let filterData = query.split( ' ' );
     tabs.getCurrentTab().forEach( cTask => {
       if (
         contains( filterData, cTask.title.split( ' ' ) )
         || contains( filterData, cTask.until.date )
         || contains( filterData, cTask.until.time )
         || contains( filterData, task.calculateStatus( cTask.until )[ 0 ].split( ' ' ) )
-      ) if ( !contains( task.filtered, cTask ) ) return task.filtered.push( cTask );
+      ) if ( !contains( filtered, cTask ) ) return filtered.push( cTask );
       let fromSub = false;
       cTask.subs.forEach( sub => { if ( contains( filterData, sub.title.split( ' ' ) ) ) fromSub = true } );
 
-      if ( fromSub && !contains( task.filtered, cTask ) ) return task.filtered.push( cTask );
+      if ( fromSub && !contains( filtered, cTask ) ) return filtered.push( cTask );
     } );
 
-    render( task.filtered );
+    return filtered;
   },
 
   /**
@@ -431,8 +448,13 @@ function dayDiff( date ) {
  * Render tasks to the task container
  */
 function render( todos = null ) {
-  if ( !todos ) todos = tabs.getCurrentTab();
   let todosContainer = task.containerEl;
+
+  if ( !todos ) {
+    if ( task.filterQuery ) todos = task.filter( task.filterQuery );
+    else todos = tabs.getCurrentTab();
+  }
+
   todosContainer.innerHTML = null;
   if ( !todos.length ) todosContainer.append( createEl( `<h3 class="_text-center">В этом списке нет задач</h3>` ) );
   else todos.forEach( ( todo, id ) => insertFirst( todosContainer, task.render( todo, id ) ) );
@@ -792,6 +814,6 @@ window.addEventListener( 'DOMContentLoaded', function () {
   selectEl( '#js-todo-add' ).addEventListener( 'click', task.create.bind( task ) )
 
   /** Search watcher */
-  selectEl( '#js-search-query' ).addEventListener( 'input', task.filter );
+  selectEl( '#js-search-query' ).addEventListener( 'input', task.filterHandler );
 
 } );
