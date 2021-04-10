@@ -706,6 +706,13 @@ const ls = {
     return gotten ? JSON.parse( gotten ).data : ( defaultValue || null );
   },
 
+  /**
+   * Clear all localStorage
+   *
+   * @returns {null}
+   */
+  clear() { return localStorage.clear() },
+
 };
 
 
@@ -796,6 +803,15 @@ function toggleClass( el, className ) {
  */
 
 window.addEventListener( 'DOMContentLoaded', function () {
+
+  /**
+   * Reset localStorage if there was an old version
+   */
+  if ( ls.get( 'version' ) !== '0.1' ) {
+    ls.clear();
+    ls.set( 'version', '0.1' );
+  }
+
 
   /** Load saved tabs data or default and save it */
   let loadedTabs = ls.get( 'tabs' );
