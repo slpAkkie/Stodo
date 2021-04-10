@@ -102,8 +102,10 @@ const task = {
     }
 
     each( popupData.subs, ( el, i ) => {
-      if ( !el.title ) addClass( selectEl( '.popup__sub-title' )[ i ], 'input_wrong' );
-      errors = true;
+      if ( !el.title ) {
+        addClass( selectEl( '.popup__sub-title' )[ i ], 'input_wrong' );
+        errors = true;
+      }
     } );
 
     if ( errors ) return;
