@@ -1,493 +1,783 @@
 /**
  * --------------------------------------------------
- * JSON data */
+ * Defaults
+ */
 
-DEF_DATA = {
-  title: 'Мой список задач',
+const data = {
   active_tab: 0,
-  tabs: [
-    {
-      title: 'Активные',
-      items: [
-        {
-          title: 'Первая заметка',
-          done: false,
-          until: '2021-05-12',
-          childs: [
-            {
-              title: 'Заметка в первой заметке',
-              done: false,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'Завершенные',
-      items: [
-        {
-          title: 'Вторая заметка',
-          done: true,
-          until: '2021-05-12',
-          childs: null,
-        },
-        {
-          title: 'Третья заметка',
-          done: true,
-          until: '2021-05-12',
-          childs: [
-            {
-              title: 'Заметка в третьей заметке',
-              done: true,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+  editID: null,
 };
+
+
+
+/**
+ * LS for test
+ * {"data":{"currentTab":"active","inactiveTab":"completed","active":[{"title":"First todo","until":{"date":"10.01.2021","time":"11:00"},"subs":[],"completed":false},{"title":"Second todo","until":{"date":"11.04.2021","time":"21:00"},"subs":[{"title":"First sub for second todo","completed":false}],"completed":false}],"completed":[]}}
+ */
+
+
 
 /**
  * --------------------------------------------------
- * DOM Elements creator
- *
- * @param {String} markup
- * @returns {Element}
+ * Tabs data
  */
-function createNode( markup ) {
+
+let tabs = {
+
+  get currentTab() {
+    return data.active_tab ? 'completed' : 'active';
+  },
+
+  get inactiveTab() {
+    return data.active_tab ? 'active' : 'completed';
+  },
+
+  getCurrentTab() { return this[ this.currentTab ] },
+  getInactiveTab() { return this[ this.inactiveTab ] },
+
+  active: [],
+  completed: [],
+
+};
+
+
+
+/**
+ * --------------------------------------------------
+ * Task functions
+ */
+
+const task = {
+
+  /**
+   * Tasks container
+   */
+  container: '.todos-container',
+  get containerEl() { return selectEl( this.container ) },
+
+  /**
+   * Open popup window to create new task
+   */
+  create() {
+    popup.mode = 'create';
+    popup.show();
+  },
+
+  /**
+   * Add new task to the todo list
+   */
+  add() {
+    popup.clearErrors();
+
+    let popupData = popup.getData();
+    let errors = false;
+
+    if ( !popupData.title ) {
+      addClass( popup.titleEl, 'input_wrong' );
+      errors = true;
+    }
+    if ( popupData.until.date ) {
+      if ( popupData.until.time && makeDate( popupData.until.date, popupData.until.time ) - Date.now() < 0 ) {
+        addClass( popup.dateEl, 'input_wrong' );
+        addClass( popup.timeEl, 'input_wrong' );
+        errors = true;
+      }
+      else if ( makeDate( popupData.until.date, nextMinute() ) - Date.now() < 0 ) {
+        addClass( popup.dateEl, 'input_wrong' );
+        errors = true;
+      }
+    } else if ( popupData.until.time ) {
+      addClass( popup.dateEl, 'input_wrong' );
+      errors = true;
+    }
+
+    each( popupData.subs, ( el, i ) => {
+      if ( !el.title ) addClass( selectEl( '.popup__sub-title' )[ i ], 'input_wrong' );
+      errors = true;
+    } );
+
+    if ( errors ) return;
+
+
+
+    if ( popup.mode === 'edit' ) task.update( popupData );
+    else tabs.getCurrentTab().push( popupData );
+    popup.hide();
+    task.save();
+    render();
+  },
+
+  /**
+   * Update an exiting task
+   */
+  update( newData ) {
+    tabs.getCurrentTab()[ data.editID ] = newData;
+    if ( newData.completed ) this.move( data.editID, tabs.completed );
+  },
+
+  /**
+   * Delete task
+   */
+  delete( id ) {
+    let currentTab = tabs.getCurrentTab();
+
+    for ( let i = id; i < currentTab.length - 1; i++ )
+      currentTab[ i ] = currentTab[ i + 1 ];
+
+    currentTab.length--;
+    popup.hide();
+    task.save();
+    render();
+  },
+
+  /**
+   * Open popup window to edit task
+   */
+  edit() {
+    data.editID = this.dataID;
+    popup.mode = 'edit';
+    popup.fill( tabs.getCurrentTab()[ this.dataID ] );
+    popup.show();
+  },
+
+  /**
+   * Set task as completed
+   */
+  changeCompleteState() {
+    let rootTodoEl = parent( this, '[class$=todo]' );
+    if ( !rootTodoEl ) return false;
+
+    let parentID = rootTodoEl.parentID;
+    let id = rootTodoEl.dataID;
+
+    let curTab = tabs.getCurrentTab();
+    if ( parentID !== undefined ) {
+      let completed = curTab[ parentID ].subs[ id ].completed = this.checked;
+      if ( !completed && curTab[ parentID ].completed ) {
+        curTab[ parentID ].completed = false;
+        task.move( parentID, tabs.active );
+      }
+    }
+    else {
+      let completed = curTab[ id ].completed = this.checked;
+      if ( completed ) task.move( id, tabs.completed );
+      else task.move( id, tabs.active )
+    }
+
+    task.save();
+  },
+
+  /**
+   * Save tasks and rerender
+   */
+  save() {
+    ls.set( 'tabs', tabs );
+    render();
+  },
+
+  /**
+   * Filter tasks
+   */
+  filter() {
+    let filterData = this.value.split( ' ' );
+    let filteredTasks = [];
+    tabs.getCurrentTab().forEach( cTask => {
+      if (
+        contains( filterData, cTask.title.split( ' ' ) )
+        || contains( filterData, cTask.until.date )
+        || contains( filterData, cTask.until.time )
+        || contains( filterData, task.calculateStatus( cTask.until )[ 0 ] )
+      ) return filteredTasks.push( cTask );
+      let fromSub = false;
+      cTask.subs.forEach( sub => { if ( contains( filterData, sub.title.split( ' ' ) ) ) fromSub = true } );
+
+      if ( fromSub ) filteredTasks.push( cTask );
+    } );
+
+    render( this.value ? filteredTasks : null );
+  },
+
+  /**
+   * Calculate status from the until date and time
+   *
+   * @returns {Array}
+   */
+  calculateStatus( until ) {
+    if ( !until.date ) return [ '', '' ];
+    let date = makeDate( until.date, until.time || nextMinute() );
+    let dateDiff = date - Date.now();
+    if ( dateDiff < 0 ) return [ 'Просрочено', '_text-danger' ];
+    else if ( ( dateDiff = countDays( dateDiff ) ) <= 1 ) return [ 'Сегодня', '_text-success' ];
+    else if ( dateDiff <= 2 ) return [ 'Завтра', '_text-success' ];
+    return [ `${until.date} ${until.time}`, '_text-success' ];
+  },
+
+  /**
+   * Render task
+   *
+   * @param data
+   * @param id
+   * @returns {ChildNode}
+   */
+  render( data, id ) {
+    let { title, completed, until, subs } = data;
+    let [ status, statusClass ] = this.calculateStatus( until );
+    let isSubs = subs.length;
+
+    let markup = `<div class="todo">
+      <div class="todo__inner row">
+        <div class="col">
+          <input class="todo__completed-checkbox _mt-1" type="checkbox" ${completed ? 'checked' : ''} ${!task.allSubsCompleted( subs ) ? 'disabled' : ''}>
+        </div>
+        <div class="todo__title-wrapper _flex sm:col lg:row _grow _justify-between _ml-4">
+          <div class="todo__title">
+            <span>${title}</span>
+          </div>
+          <div class="todo__until-status _text-semi-bold sm:_mt-1 ${statusClass}">
+            <span>${status}</span>
+          </div>
+        </div>
+      </div>
+      ${isSubs ? '<div class="todo__subs"></div>' : ''}
+    </div>`;
+
+    let todo = createEl( markup );
+
+    if ( isSubs ) {
+      let subContainer = selectEl( '.todo__subs', todo );
+      subs.forEach( ( sub, subID ) => {
+        subContainer.append( task.renderSub( sub, id, subID ) );
+      } );
+    }
+
+    todo.dataID = id;
+
+    selectEl( '.todo__title-wrapper', todo ).addEventListener( 'click', task.edit.bind( todo ) );
+    each( selectEl( '.todo__completed-checkbox', todo ), el => el.addEventListener( 'click', task.changeCompleteState ) );
+
+    return todo;
+  },
+
+  /**
+   * Render sub task
+   *
+   * @param data
+   * @param parentID
+   * @param id
+   * @returns {ChildNode}
+   */
+  renderSub( data, parentID, id ) {
+    let { title, completed } = data;
+
+    let markup = `<div class="sub-todo">
+      <div class="row _align-center">
+        <div class="col">
+            <input class="todo__completed-checkbox" type="checkbox" ${completed ? 'checked' : ''}>
+        </div>
+        <div class="col">
+          <div class="todo__title _ml-4">
+            <span>${title}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    let sub = createEl( markup );
+    sub.parentID = parentID;
+    sub.dataID = id;
+
+    return sub;
+  },
+
+  allSubsCompleted( subs ) {
+    let subsCompleted = true;
+    subs.forEach( el => subsCompleted = subsCompleted && el.completed );
+
+    return subsCompleted;
+  },
+
+  /**
+   * Move task between tabs
+   */
+  move( id, tab ) {
+    let currentTab = tabs.getCurrentTab();
+
+    if ( currentTab === tab ) return;
+
+    tab.push( currentTab[ id ] );
+
+    for ( let i = id; i < currentTab.length - 1; i++ )
+      currentTab[ i ] = currentTab[ i + 1 ];
+
+    currentTab.length--;
+  },
+
+};
+
+
+
+/**
+ * --------------------------------------------------
+ * Helpers
+ */
+
+/**
+ * Create element from markup
+ *
+ * @param markup
+ * @returns {ChildNode}
+ */
+function createEl( markup ) {
   let template = document.createElement( 'template' );
   template.innerHTML = markup.trim();
   return template.content.firstChild;
 }
 
 /**
- * --------------------------------------------------
- * Tab creator
+ * Insert element first in the parent
  *
- * @param {Number} id
- * @param {String} title
- * @returns {Element}
+ * @param parent
+ * @param child
  */
-
-function createTab( id, title ) {
-  return createNode( `<div data-tab-id="${id}" class="tabs__tab"><span class="tabs__tab-title">${title}</span></div>` );
+function insertFirst( parent, child ) {
+  parent.insertBefore( child, parent.firstChild )
 }
 
 /**
- * --------------------------------------------------
- * Tab loader */
-
-function loadTabs() {
-  DATA.tabs.forEach( ( obj, id ) => {
-    _( '.tabs' ).insert( createTab( id, obj.title ) );
-  } );
-}
-
-/**
- * --------------------------------------------------
- * Tab switcher */
-
-function switchTab() {
-  DATA.active_tab = this.getAttribute( 'data-tab-id' );
-  _( `.tabs__tab_active` )?.toggleClass( 'tabs__tab_active' );
-  this.toggleClass( 'tabs__tab_active' );
-  activeTabSave();
-  loadTabContent();
-}
-
-/**
- * --------------------------------------------------
- * Tab selector */
-
-function getCurrentTabItems() { return DATA.tabs[ DATA.active_tab ].items }
-
-/**
- * --------------------------------------------------
- * Open popup */
-
-function popupOpen() {
-  _( '.popup__wrapper' ).removeClass( 'popup__wrapper_closed' );
-  _( '.popup__wrapper' ).addClass( 'popup__wrapper_shown' );
-}
-
-/**
- * --------------------------------------------------
- * Close popup */
-
-function popupClose() {
-  _( '.popup__wrapper' ).removeClass( 'popup__wrapper_shown' );
-  _( '.popup__wrapper' ).addClass( 'popup__wrapper_closed' );
-  clearPopup();
-}
-
-/**
- * --------------------------------------------------
- * Close popup */
-
-function popupDelete() {
-  if ( DATA.editingMode ) {
-    popupClose();
-    todoRemove.call( DATA.editClickedOn );
-  }
-  else popupClose()
-  rerender();
-}
-
-/**
- * --------------------------------------------------
- * Change value in the popup title input */
-
-function popupWrongChanged() {
-  this.removeClass( 'popup__wrong' );
-  this.removeOn( 'input', 'popupWrongChanged' );
-}
-
-/**
- * --------------------------------------------------
- * Clear popup */
-
-function clearPopup() {
-  _( '.popup__title' ).value = '';
-  _( '.popup__until' ).value = '';
-  _( '.popup__done' ).checked = false;
-  _( '.popup__childs' ).innerHTML = '';
-
-  if ( DATA.editingMode ) {
-    DATA.editingMode = false;
-    DATA.editTodoID = null;
-    DATA.editTodoParentID = null;
-  }
-}
-
-/**
- * --------------------------------------------------
- * Editable subs creator
+ * Find parent which match the selector
  *
- * @returns {Element}
+ * @param element
+ * @param selector
  */
+function parent( element, selector = null ) {
+  if ( !selector ) return element.parentElement;
 
-function createEditableSub( obj = null ) {
-  let title = obj?.title || '',
-    done = obj?.done || '';
-
-  let sub = _( createNode( `
-  <div class="popup__todo-editable-child-container">
-    <div class="popup__todo-editable-child">
-      <input type="checkbox" class="popup__todo-editable-child-done"${done ? 'checked' : ''}>
-      <input type="text" class="popup__todo-editable-child-title" value="${title ? title : ''}">
-      <div class="ui ui-button ui-icon_delete popup__todo-editable-child-delete-button"></div>
-    </div>
-  </div>`) );
-
-  // Handler for remove
-  sub._( '.popup__todo-editable-child-delete-button' ).on( 'click', () => sub.remove() );
-
-  return sub.get();
+  if ( element.matches( 'body' ) ) return null;
+  if ( !element.parentElement.matches( selector ) ) return parent( element.parentElement, selector );
+  else return element.parentElement;
 }
 
 /**
- * --------------------------------------------------
- * Todo save */
-
-function todoSave() {
-  let PPP_TMPDT = new Object(),
-    title = _( '.popup__title' ),
-    until = _( '.popup__until' );
-  PPP_TMPDT.title = title.value;
-  PPP_TMPDT.until = _( '.popup__until' ).value || null;
-  PPP_TMPDT.done = _( '.popup__done' ).checked || false;
-  PPP_TMPDT.childs = [];
-
-  let errCount = 0;
-
-  if ( PPP_TMPDT.title === '' ) {
-    title.addClass( 'popup__wrong' );
-    errCount++;
-  }
-
-  if ( until.valueAsDate && until.valueAsDate < Date.now() ) {
-    until.addClass( 'popup__wrong' );
-    errCount++;
-  }
-
-  _( '.popup__todo-editable-child' )?.each( el => {
-    let title = el._( '.popup__todo-editable-child-title' ), sub = {
-      title: title.value,
-      done: el._( '.popup__todo-editable-child-done' ).checked,
-    };
-
-    if ( !sub.title ) {
-      errCount++;
-      title.addClass( 'popup__wrong' );
-      title.on( 'input', popupWrongChanged, 'popupWrongChanged' );
-    }
-
-    PPP_TMPDT.childs.push( sub );
-  } );
-
-  if ( errCount ) {
-    _( '.popup__wrong' ).on( 'input', popupWrongChanged, 'popupWrongChanged' );
-    return;
-  }
-
-  !PPP_TMPDT.childs.length && ( PPP_TMPDT.childs = null );
-
-  if ( DATA.editingMode ) {
-    let oldDoneStatus = getCurrentTabItems()[ DATA.editTodoID ].done;
-
-    getCurrentTabItems()[ DATA.editTodoID ] = PPP_TMPDT;
-    if ( oldDoneStatus !== PPP_TMPDT.done ) DATA.editClickedOn.parent( '.to-do' )._( '.to-do__checkbox-input' ).click();
-  }
-  else
-    getCurrentTabItems().push( PPP_TMPDT );
-
-  popupClose();
-  rerender();
+ * Make date from string in format dd.mm.yyyy
+ *
+ * @param {string} date
+ * @param {string} time
+ * @returns Date
+ */
+function makeDate( date, time = '' ) {
+  return new Date( `${date.replace( /(\d+).(\d+).(\d+)/, '$3-$2-$1' )}${time ? ' ' + time : ''}` );
 }
 
 /**
- * --------------------------------------------------
- * Todo remove */
-
-function todoRemove( toConfirm = true ) {
-  //  Make sure to delete
-  let confirmation = toConfirm ? confirm( 'Вы правда хотите удалить эту запись?' ) : true;
-  if ( !confirmation ) return;
-
-  // Searching an id
-  let id = this.parent( '[data-todo-id]' ).getAttribute( 'data-todo-id' );
-  id = parseInt( id );
-  if ( isNaN( id ) ) return;
-
-  let parentTodo = this.parent( '.to-do__childs' );
-
-  // Shift all others elements
-  let currentTabItems = getCurrentTabItems();
-  if ( parentTodo ) {
-    let parentID = parentTodo.prev()._( '.to-do' ).getAttribute( 'data-todo-id' );
-    for ( let i = id; i < currentTabItems[ parentID ].childs.length - 1; i++ ) {
-      currentTabItems[ parentID ].childs[ i ] = currentTabItems[ parentID ].childs[ i + 1 ];
-      parentTodo.parent( '.to-do__wrapper' ).parent()._( `[data-todo-id=${i + 1}]` ).setAttribute( 'data-todo-id', i );
-    }
-    --currentTabItems[ parentID ].childs.length < 1 && ( currentTabItems[ parentID ].childs = null );
-  } else {
-    for ( let i = id; i < currentTabItems.length - 1; i++ )
-      currentTabItems[ i ] = currentTabItems[ i + 1 ];
-    currentTabItems.length--;
-  }
-
-  rerender();
+ * Count how much days in seconds
+ *
+ * @param {number} ms
+ * @returns number
+ */
+function countDays( ms ) {
+  return ms / 1000 / 3600 / 24;
 }
 
 /**
- * --------------------------------------------------
- * Change todo check status */
-
-function todoCheckChange( id, parentID ) {
-  if ( parentID !== null ) getCurrentTabItems()[ parentID ].childs[ id ].done = this.checked
-  else {
-    getCurrentTabItems()[ id ].done = this.checked;
-    DATA.tabs[ ~~this.checked ].items.unshift( getCurrentTabItems()[ id ] );
-    todoRemove.call( this, false );
-  }
-
-  tabsSave();
-}
+ * Get Date as now but one minute forward
+ *
+ * @returns Date
+ */
+function nextMinute() { return new Date( Date.now() + 60000 ).toLocaleTimeString().slice( 0, -3 ) }
 
 /**
- * --------------------------------------------------
- * Todo edit */
+ * Check if array contains something
+ *
+ * @param {array} where
+ * @param {any} what
+ * @returns {bool}
+ */
+function contains( where, what ) {
+  if ( !Array.isArray( what ) ) what = [ what ];
 
-function todoEdit() {
-  DATA.editingMode = true;
-  DATA.editClickedOn = this;
+  let isContain = false
 
-  // Searching an id
-  let id = parseInt( this.parent( '[data-todo-id]' ).getAttribute( 'data-todo-id' ) );
-  if ( isNaN( id ) ) return;
-  else DATA.editTodoID = id;
-
-  parentID = this.parent( '.to-do' ).parentID || null;
-  parentID && ( parentID = DATA.editTodoParentID = parseInt( parentID ) );
-
-  let todo;
-  if ( typeof parentID === 'number' ) {
-    todo = getCurrentTabItems()[ parentID ].childs[ id ];
-    _( '.popup__childs' ).innerHTML = 'Добавить дочерние задачи невозможно';
-  } else {
-    todo = getCurrentTabItems()[ id ];
-    todo.childs?.forEach( el => {
-      _( '.popup__childs' ).insert( createEditableSub( el ) );
+  where.forEach( el => {
+    what.forEach( whatEl => {
+      if ( el === whatEl ) isContain = true
     } );
-  }
+  } );
 
-  _( '.popup__title' ).value = todo.title;
-  _( '.popup__until' ).value = todo.until;
-  _( '.popup__done' ).checked = todo.done;
-
-  popupOpen();
+  return isContain;
 }
+
+
 
 /**
  * --------------------------------------------------
- * Tab content creator
- *
- * @param {Number} id
- * @param {Object} obj
- * @returns {Element}
+ * General functions
  */
 
-function createTodo( id, obj, parentID ) {
-  let todo = _( createNode( `
-  <div class="to-do__wrapper">
-    <div class="to-do__container">
-      <div data-todo-id="${id}" class="to-do">
-        <div class="to-do__checkbox"><input type="checkbox" class="to-do__checkbox-input" ${obj.done ? 'checked' : ''}></div>
-        <div class="to-do__title">${obj.title}</div>
-        ${obj.until ? `<div class="to-do__until-time">${obj.until}</div>` : ''}
-        ${parentID === null ? `
-        <div class="to-do__controls">
-          <div class="ui ui-button ui-icon_edit to-do__control-item to-do__control-edit"></div>
-          <div class="ui ui-button ui-icon_delete to-do__control-item to-do__control-remove"></div>
-        </div>` : ''}
-      </div>
-    </div>
-    ${obj.childs ? `<div class="to-do__childs"></div>` : ''}
-  </div>`) );
+/**
+ * Render tasks to the task container
+ */
+function render( todos = null ) {
+  if ( !todos ) todos = tabs.getCurrentTab();
+  let todosContainer = task.containerEl;
+  todosContainer.innerHTML = null;
+  if ( !todos.length ) todosContainer.append( createEl( `<h3 class="_text-center">В этом списке нет задач</h3>` ) );
+  else todos.forEach( ( todo, id ) => insertFirst( todosContainer, task.render( todo, id ) ) );
+}
 
-  obj.childs && loadTabContent( obj.childs, todo._( '.to-do__childs' ), id );
+function extractFilters() { }
 
-  ( parentID !== null ) && ( todo._( '.to-do' ).parentID = parentID );
-  todo._( '.to-do__checkbox-input' ).get( 0, true ).on( 'click', function () { todoCheckChange.call( this, id, parentID ) } );
+/**
+ * Switch tab
+ */
+function tabSwitch() {
+  if ( hasClass( this, 'active' ) ) return;
+
+  let id = data.active_tab = +!data.active_tab;
+  addClass( selectEl( `.tab[data-id="${id}"]` ), 'active' );
+  removeClass( selectEl( `.tab[data-id="${+!id}"]` ), 'active' );
+  render()
+}
+
+
+
+/**
+ * --------------------------------------------------
+ * Popup functions
+ */
+
+const popup = {
 
   /**
-   * -------------------------
-   * Handler for controls */
-  todo._( '.to-do__control-edit' )?.on( 'click', todoEdit );
-  todo._( '.to-do__control-remove' )?.on( 'click', todoRemove );
+   * Can be 'create', 'edit'
+   * @var {string} define in which mode popup will be opened
+   */
+  mode: 'create',
 
-  return todo.get();
-}
+  /**
+   * Sub container
+   */
+  emptySubContainerClass: 'popup__subs-container_empty',
+  subContainerSelector: '#js-subs-container',
+  get subContainerEl() { return selectEl( this.subContainerSelector ) },
+  get subs() { return selectEl( '.popup__sub', this.subContainerEl ) },
+
+  /**
+   * Popup window
+   */
+  selector: '.popup',
+  get el() { return selectEl( this.selector ) },
+
+  /**
+   * Popup's control buttons
+   */
+  controlButtonsSelector: '.popup__control-button',
+  get controlButtons() { return selectEl( this.controlButtonsSelector ) },
+
+  /**
+   * Elements from popup
+   */
+  get titleEl() { return selectEl( '#js-popup-title' ) },
+  get dateEl() { return selectEl( '#js-popup-date' ) },
+  get timeEl() { return selectEl( '#js-popup-time' ) },
+  get completedEl() { return selectEl( '#js-popup-completed' ) },
+
+  /**
+   * Values from popup
+   */
+  get title() { return this.titleEl.value },
+  get date() {
+    let untilDate = this.dateEl.valueAsDate;
+    return untilDate ? untilDate.toLocaleDateString() : null;
+  },
+  get time() { return this.timeEl.value || null },
+  get completed() { return this.completedEl.checked },
+  get childs() { return this.getSubsData() },
+
+  /**
+   * Show popup and generate control buttons
+   */
+  show() {
+    let editMode = this.mode === 'edit';
+
+    let cancelButton = createEl( `<input type="button" value="Отменить" class="button popup__cancel">` );
+    this.controlButtons.append( cancelButton );
+    cancelButton.addEventListener( 'click', popup.hide.bind( popup ) );
+
+    if ( editMode ) {
+      let deleteButton = createEl( `<input type="button" value="Удалить" class="button button_danger popup__delete _ml-2">` );
+      this.controlButtons.append( deleteButton );
+      deleteButton.addEventListener( 'click', task.delete.bind( deleteButton, data.editID ) );
+    }
+
+    let saveButton = createEl( `<input type="button" value="${editMode ? 'Сохранить' : 'Создать'}" class="button button_success popup__save _ml-2">` );
+    this.controlButtons.append( saveButton );
+    saveButton.addEventListener( 'click', task.add.bind( selectEl( '.popup__body', popup.el ) ) );
+
+    addClass( this.el, '_shown' );
+  },
+
+  /**
+   * Remove all wrong classes from inputs
+   */
+  clearErrors() {
+    let prevsErorrs = selectEl( '.input_wrong', popup.el );
+    prevsErorrs && each( prevsErorrs, el => removeClass( el, 'input_wrong' ) )
+  },
+
+  /**
+   * Hide popup
+   */
+  hide() {
+    data.editID = null;
+    popup.reset();
+    removeClass( this.el, '_shown' );
+  },
+
+  /**
+   * Reset input data in the popup
+   */
+  reset() {
+    selectEl( '#js-popup-title' ).value = null;
+    selectEl( '#js-popup-date' ).value = null;
+    selectEl( '#js-popup-time' ).value = null;
+    selectEl( '#js-popup-completed' ).checked = false;
+    selectEl( '#js-subs-container' ).innerHTML = null;
+    addClass( selectEl( '#js-subs-container' ), this.emptySubContainerClass );
+
+    this.clearErrors();
+
+    this.controlButtons.innerHTML = null;
+  },
+
+  /**
+   * Fill popup fields with data
+   *
+   * @param data
+   */
+  fill( data = {} ) {
+    this.titleEl.value = data.title;
+    if ( data.until.date ) {
+      this.dateEl.value = data.until.date.replace( /(\d+).(\d+).(\d+)/, '$3-$2-$1' ) || null;
+      this.timeEl.value = data.until.time || null;
+    }
+    this.completedEl.checked = data.completed || false;
+  },
+
+  /**
+   * Get data from popup
+   *
+   * @returns {Object}
+   */
+  getData() {
+    let data = { until: {} };
+    data.title = this.title;
+    data.until.date = this.date;
+    data.until.time = this.time;
+    data.completed = this.completed;
+    data.subs = this.childs;
+
+    return data;
+  },
+
+  /**
+   * Get array of subs data
+   *
+   * @returns {Array}
+   */
+  getSubsData() {
+    let data = [];
+    each( this.subs, el => {
+      data.push( {
+        title: selectEl( '.popup__sub-title', el ).value,
+        completed: selectEl( '.popup__sub-checkbox', el ).checked,
+      } )
+    } );
+
+    return data;
+  },
+
+  /**
+   * Add new sub task to the popup
+   */
+  addSub( completed = false, title = '' ) {
+    let markup = `
+      <div class="popup__sub row _align-center">
+        <input type="checkbox" class="popup__sub-checkbox" ${completed ? 'checked' : ''}>
+        <input type="text" class="popup__sub-title input _grow _ml-4" value="${title}">
+        <span class="popup__sub-delete-button _ml-2 _font-small _text-danger _text-semi-bold">Удалить</span>
+      </div>
+    `;
+
+    let subContainer = this.subContainerEl;
+    removeClass( subContainer, this.emptySubContainerClass );
+    let sub = createEl( markup );
+    subContainer.append( sub );
+
+    selectEl( '.popup__sub-delete-button', sub ).addEventListener( 'click', this.removeSub );
+  },
+
+  /**
+   * Remove sub task from the popup
+   */
+  removeSub() {
+    this.parentElement.remove();
+
+    if ( !popup.subContainerEl.innerHTML ) addClass( popup.subContainerEl, popup.emptySubContainerClass )
+  }
+
+};
+
+
 
 /**
  * --------------------------------------------------
- * Tab content loader
- *
- * @param {Array} todos
- * @param {String|null} where
+ * LocalStorage functions
  */
 
-function loadTabContent( todos = null, where = null, parentID = null ) {
-  todos = todos || getCurrentTabItems();
-  where = _( where ) || _( '.tab-content' );
-  where.innerHTML = '';
-  todos.forEach( ( obj, id ) => {
-    where.insert( createTodo( id, obj, parentID ) );
-  } );
-}
+const ls = {
 
-/**
- * --------------------------------------------------
- * Local storage */
-
-LS = {
-  get( key ) {
-    return JSON.parse( localStorage.getItem( key ) )?.data;
-  },
+  /**
+   * Save value in the localStorage
+   *
+   * @param key
+   * @param value
+   * @returns {*}
+   */
   set( key, value ) {
     localStorage.setItem( key, JSON.stringify( { data: value } ) );
     return value;
   },
+
+  /**
+   * Get value from the localStorage
+   *
+   * @param key
+   * @param defaultValue
+   * @returns {*|null}
+   */
+  get( key, defaultValue = null ) {
+    let gotten = localStorage.getItem( key );
+    return gotten ? JSON.parse( gotten ).data : ( defaultValue || null );
+  },
+
 };
 
-/**
- * --------------------------------------------------
- * Save Data */
 
-function dataSave() {
-  tabsSave();
-  activeTabSave();
-  titleSave();
-}
-
-function tabsSave() { LS.set( 'tabs', DATA.tabs ) }
-function activeTabSave() { LS.set( 'active_tab', DATA.active_tab ) }
-function titleSave() { LS.set( 'title', DATA.title ) }
 
 /**
  * --------------------------------------------------
- * Load Data */
+ * Additions
+ */
 
-function dataLoad() {
-  DATA.tabs = LS.get( 'tabs' );
-  DATA.active_tab = LS.get( 'active_tab' );
-  DATA.title = LS.get( 'title' );
-
-  return DATA.tabs && DATA.active_tab !== null && DATA.title;
+/**
+ * Select elements by selector (As array if more than one)
+ *
+ * @param selector
+ * @param parent
+ * @returns {null|Element[]|Element}
+ */
+function selectEl( selector, parent = document ) {
+  let els = parent.querySelectorAll( selector );
+  switch ( els.length ) {
+    case 0: return null;
+    case 1: return els[ 0 ];
+    default: return Array.from( els );
+  }
 }
 
 /**
- * --------------------------------------------------
- * Rerender */
+ * Exec callback at the element (or elements)
+ *
+ * @param els
+ * @param callback
+ */
+function each( els, callback ) {
+  if ( !els ) return;
+  if ( !Array.isArray( els ) ) els = [ els ];
 
-function rerender() {
-  loadTabContent();
-  tabsSave();
+  els.forEach( ( el, i ) => { callback.call( el, el, i ) } )
+}
+
+/**
+ * Check if element has class
+ *
+ * @param el
+ * @param className
+ * @returns {boolean}
+ */
+function hasClass( el, className ) {
+  return el.classList.contains( className );
+}
+
+/**
+ * Add element's class
+ *
+ * @param el
+ * @param className
+ */
+function addClass( el, className ) {
+  return el.classList.add( className );
+}
+
+/**
+ * Remove element's class
+ *
+ * @param el
+ * @param className
+ */
+function removeClass( el, className ) {
+  return el.classList.remove( className );
+}
+
+/**
+ * Toggle element's class
+ *
+ * @param el
+ * @param className
+ * @returns {void}
+ */
+function toggleClass( el, className ) {
+  if ( hasClass( el, className ) )
+    return removeClass( el, className );
+  return addClass( el, className );
 }
 
 
 
 /**
  * --------------------------------------------------
- * Init App */
+ * EventListeners
+ */
 
-let DATA = {};
-dataLoad() || ( DATA = DEF_DATA ) && dataSave();
-DATA.editingMode = false;
-DATA.editTodoID = null;
-DATA.editTodoParentID = null;
-_( '.header-title' ).value = DATA.title;
-loadTabs();
-_( `.tabs__tab[data-tab-id="${DATA.active_tab}"]` ).toggleClass( 'tabs__tab_active' );
-loadTabContent();
+window.addEventListener( 'DOMContentLoaded', function () {
 
+  /** Load saved tabs data or default and save it */
+  let loadedTabs = ls.get( 'tabs' );
+  if ( !loadedTabs ) ls.set( 'tabs', tabs );
+  else {
+    tabs.active = loadedTabs.active;
+    tabs.completed = loadedTabs.completed;
+  }
 
+  /** First todos render */
+  render();
 
-/**
- * --------------------------------------------------
- * Handlers */
+  /** Switch tab */
+  each(
+    selectEl( '.tab' ),
+    el => el.addEventListener( 'click', tabSwitch )
+  );
 
-// --------------------------------------------------
-_( '.header-title__edit-button' ).on( 'click', () => {
-  let ht = _( '.header-title' );
-  ht.removeAttribute( 'disabled' )
-  ht.focus();
-  ht.select();
-} );
+  /** Close popup */
+  selectEl( '#js-popup-close' ).addEventListener( 'click', popup.hide.bind( popup ) );
 
-_( '.header-title' ).on( 'blur', function () {
-  _( '.header-title' ).setAttribute( 'disabled', true );
-  if ( !this.value ) this.value = 'Мой список задач';
-  DATA.title = this.value;
-  titleSave();
-} );
+  /** Add sub task in popup */
+  selectEl( '#js-add-sub' ).addEventListener( 'click', popup.addSub.bind( popup ) );
 
-// --------------------------------------------------
-_( '.tabs__tab' ).on( 'click', switchTab );
+  /** Open form to create new task */
+  selectEl( '#js-todo-add' ).addEventListener( 'click', task.create.bind( task ) )
 
-// --------------------------------------------------
-_( '#js-add-new' ).on( 'click', popupOpen );
+  /** Search watcher */
+  selectEl( '#js-search-query' ).addEventListener( 'input', task.filter );
 
-// --------------------------------------------------
-_( '.popup__close-button' ).on( 'click', popupClose );
-
-// --------------------------------------------------
-_( '.popup__save-button' ).on( 'click', todoSave );
-
-// --------------------------------------------------
-_( '.popup__delete-button' ).on( 'click', popupDelete );
-
-// --------------------------------------------------
-_( '#popup__add-child' ).on( 'click', function () {
-  _( '.popup__childs' ).insert( createEditableSub() );
 } );

@@ -6,3 +6,10 @@
   font-family: 'Raleway';
   src: url(../fonts/Raleway-Variable.ttf) format('truetype');
 }
+
+
+@font-face {
+  font-family: 'Raleway';
+  src: url(../fonts/Raleway-Italic-Variable.ttf) format('truetype');
+  font-style: italic;
+}

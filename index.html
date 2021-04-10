@@ -23,97 +23,82 @@
 
   <!-- -------------------------
   Page container -->
-  <div class="pc-container">
+  <div class="container">
 
-    <!-- -------------------------
-    Page header -->
-    <section class="pc-header">
+    <div class="page-header">
+      <h1 class="page-header__title _text-center">Задачи</h1>
+    </div>
 
-      <!-- Header title -->
-      <div class="header-title__container">
-        <input type="text" class="header-title" disabled>
-        <div class="ui ui-button ui-icon_edit header-title__edit-button"></div>
+    <div class="page-search">
+      <label>
+        <input type="text" id="js-search-query" class="page-search__input _w-100 input" placeholder="Поиск">
+      </label>
+    </div>
+
+    <div class="_flex _justify-center _mt-4 _mb-4">
+      <input type="button" value="Добавить" class="button" id="js-todo-add">
+    </div>
+
+    <div class="tabs _flex sm:col lg:row _justify-evenly">
+      <div class="tab _flex _justify-center _align-center _grow active" data-id="0">
+        <span>Активные</span>
       </div>
-
-      <!-- Header search -->
-      <div class="header-search__container">
-        <div class="header-search">
-          <input type="text" name="search-query" id="search-qery" class="header-search__input" placeholder="Поиск">
-        </div>
-      </div>
-
-    </section>
-
-    <!-- -------------------------
-    Main part -->
-    <main class="pc-main">
-
-      <!-- -------------------------
-      Tabs -->
-      <div class="tabs__container">
-        <div class="tabs"></div>
-      </div>
-
-      <!-- -------------------------
-      To-do list -->
-      <div class="tab-content__container">
-        <div class="tab-content"></div>
-        <div class="tab-content__add-button-container">
-          <input type="button" class="tab-content__add-button" id="js-add-new" value="Добавить">
-        </div>
-      </div>
-
-    </main>
-
-  </div>
-
-  <!-- -------------------------
-  Popup -->
-  <div class="popup__wrapper">
-    <div class="popup__overlay"></div>
-    <div class="popup__container">
-      <div class="popup pc-container">
-
-        <!-- Popup header -->
-        <header class="popup__top">
-          <div class="popup__header-title">Редактор</div>
-          <div class="ui ui-button ui-icon_close popup__close-button"></div>
-        </header>
-
-        <!-- Popup content -->
-        <div class="popup__content">
-          <div class="popup__row"><input type="text" class="popup__title" placeholder="Название задачи"></div>
-          <div class="popup__row popup__row_half popup__row_between">
-            <label for="popup__until" class="popup__until-label">Выполнить до</label>
-            <input type="date" id="popup__until" class="popup__until">
-          </div>
-          <div class="popup__row popup__row_half">
-            <input type="checkbox" id="popup__done" class="popup__done">
-            <label for="popup__done" class="popup__done-label">Выполнено</label>
-          </div>
-          <div class="popup__row popup__row_between">
-            <label class="popup__add-child-label">Подзадачи</label>
-            <input type="button" id="popup__add-child" value="Добавить">
-          </div>
-          <div class="popup__row">
-            <div class="popup__childs-container">
-              <div class="popup__childs"></div>
-            </div>
-          </div>
-          <div class="popup__row popup__row_between">
-            <input type="button" class="popup__control-buttons popup__save-button" value="Сохранить">
-            <input type="button" class="popup__control-buttons popup__delete-button" value="Удалить">
-          </div>
-        </div>
-
+      <div class="tab _flex _justify-center _align-center _grow" data-id="1">
+        <span>Завершенные</span>
       </div>
     </div>
+
+    <div class="todos-container"></div>
+
+    <div class="popup _fullscreen">
+      <div class="popup__inner">
+        <div class="popup__header row _justify-between">
+          <div class="popup__heading"></div>
+          <div class="popup__close" id="js-popup-close">
+            <span class="_text-bold">Закрыть</span>
+          </div>
+        </div>
+        <div class="popup__body">
+          <div class="popup__title popup-row">
+            <label class="_w-100 col">
+              <span class="_text-semi-bold">Название</span>
+              <input type="text" class="input _mt-2" id="js-popup-title" placeholder="Сделать домашнюю работу">
+            </label>
+          </div>
+          <div class="popup__until popup-row _flex lg:row sm:col _justify-evenly">
+            <label class="col _w-100 _grow lg:_mr-2">
+              <span>День</span>
+              <input type="date" class="input" id="js-popup-date">
+            </label>
+            <label class="col _w-100 _grow lg:_ml-2 sm:_mt-2">
+              <span>Время</span>
+              <input type="time" class="input" id="js-popup-time">
+            </label>
+          </div>
+          <div class="popup__completed popup-row">
+            <label class="_flex _align-center">
+              <input type="checkbox" id="js-popup-completed">
+              <span class="_ml-2">Выполнено</span>
+            </label>
+          </div>
+          <div class="popup__subs popup-row">
+            <div class="popup__subs-header row _justify-between _align-center">
+              <span>Подзадачи</span>
+              <input type="button" value="Добавить" class="button" id="js-add-sub">
+            </div>
+            <div class="popup__subs-container _mt-2 popup__subs-container_empty" id="js-subs-container"></div>
+          </div>
+          <div class="popup__control-button popup-row row _justify-end"></div>
+        </div>
+      </div>
+      <div class="popup__overlay _fullscreen"></div>
+    </div>
+
   </div>
 
 
   <!-- -------------------------
   JS -->
-  <script src="./assets/js/queryLight.js"></script>
   <script src="./assets/js/main.js"></script>
 
 </body>

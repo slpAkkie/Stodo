@@ -1,25 +1,13 @@
 /*
  * --------------------------------------------------
- * Reset defualt styles */
+ * Reset default styles */
 
 * {
-
-  /* Display */
   box-sizing: border-box;
 
-  /* Appearance */
+  margin: 0;
+  padding: 0;
+
   outline: none;
   box-shadow: none;
-  border: none;
-
-}
-
-body { margin: 0 }
-
-h1, h2, h3, h4, h5, h6 {
-
-  /* Dimensions */
-  margin-top: 0px;
-  margin-bottom: 0px;
-
 }
