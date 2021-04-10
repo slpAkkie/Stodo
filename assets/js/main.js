@@ -209,7 +209,7 @@ const task = {
     if ( dateDiff < 0 ) return [ 'Просрочено', '_text-danger' ];
     else if ( ( dateDiff = countDays( dateDiff ) ) <= 1 ) return [ 'Сегодня', '_text-success' ];
     else if ( dateDiff <= 2 ) return [ 'Завтра', '_text-success' ];
-    return [ `${until.date} ${until.time}`, '_text-success' ];
+    return [ `${until.date}${until.time ? ' ' + until.time : ''}`, '_text-success' ];
   },
 
   /**
