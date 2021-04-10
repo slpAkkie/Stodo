@@ -546,12 +546,12 @@ const popup = {
     cancelButton.addEventListener( 'click', popup.hide.bind( popup ) );
 
     if ( editMode ) {
-      let deleteButton = createEl( `<input type="button" value="Удалить" class="button button_danger popup__delete _ml-2">` );
+      let deleteButton = createEl( `<input type="button" value="Удалить" class="button button_danger popup__delete sm:_mt-2 lg:_ml-2">` );
       this.controlButtons.append( deleteButton );
       deleteButton.addEventListener( 'click', task.delete.bind( deleteButton, data.editID ) );
     }
 
-    let saveButton = createEl( `<input type="button" value="${editMode ? 'Сохранить' : 'Создать'}" class="button button_success popup__save _ml-2">` );
+    let saveButton = createEl( `<input type="button" value="${editMode ? 'Сохранить' : 'Создать'}" class="button button_success popup__save sm:_mt-2 lg:_ml-2">` );
     this.controlButtons.append( saveButton );
     saveButton.addEventListener( 'click', task.add.bind( selectEl( '.popup__body', popup.el ) ) );
 
