@@ -143,7 +143,7 @@ const task = {
   /**
    * Set task as completed
    */
-  changeCompleteState( checkbox ) {
+  changeCompleteState() {
     let rootTodoEl = parent( this, '[class$=todo]' );
     if ( !rootTodoEl ) return false;
 
@@ -153,7 +153,7 @@ const task = {
     let curTab = tabs.getCurrentTab();
     if ( parentID !== undefined ) {
       let completed = curTab[ parentID ].subs[ id ].completed = this.checked;
-      if ( !completed ) {
+      if ( !completed && curTab[ parentID ].completed ) {
         curTab[ parentID ].completed = false;
         task.move( parentID, tabs.active );
       }
@@ -286,6 +286,8 @@ const task = {
    */
   move( id, tab ) {
     let currentTab = tabs.getCurrentTab();
+
+    if ( currentTab === tab ) return;
 
     tab.push( currentTab[ id ] );
 
