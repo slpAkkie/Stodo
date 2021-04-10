@@ -603,6 +603,10 @@ const popup = {
       this.timeEl.value = data.until.time || null;
     }
     this.completedEl.checked = data.completed || false;
+
+    data.subs.forEach( sub => {
+      this.addSub( sub );
+    } );
   },
 
   /**
@@ -641,21 +645,21 @@ const popup = {
   /**
    * Add new sub task to the popup
    */
-  addSub( completed = false, title = '' ) {
+  addSub( sub = {} ) {
     let markup = `
       <div class="popup__sub row _align-center">
-        <input type="checkbox" class="popup__sub-checkbox" ${completed ? 'checked' : ''}>
-        <input type="text" class="popup__sub-title input _grow _ml-4" value="${title}">
+        <input type="checkbox" class="popup__sub-checkbox" ${sub.completed ? 'checked' : ''}>
+        <input type="text" class="popup__sub-title input _grow _ml-4" value="${sub.title ? sub.title : ''}">
         <span class="popup__sub-delete-button _ml-2 _font-small _text-danger _text-semi-bold">Удалить</span>
       </div>
     `;
 
     let subContainer = this.subContainerEl;
     removeClass( subContainer, this.emptySubContainerClass );
-    let sub = createEl( markup );
-    subContainer.append( sub );
+    let subEl = createEl( markup );
+    subContainer.append( subEl );
 
-    selectEl( '.popup__sub-delete-button', sub ).addEventListener( 'click', this.removeSub );
+    selectEl( '.popup__sub-delete-button', subEl ).addEventListener( 'click', this.removeSub );
   },
 
   /**
@@ -814,7 +818,7 @@ window.addEventListener( 'DOMContentLoaded', function () {
   selectEl( '#js-popup-close' ).addEventListener( 'click', popup.hide.bind( popup ) );
 
   /** Add sub task in popup */
-  selectEl( '#js-add-sub' ).addEventListener( 'click', popup.addSub.bind( popup ) );
+  selectEl( '#js-add-sub' ).addEventListener( 'click', popup.addSub.bind( popup, {} ) );
 
   /** Open form to create new task */
   selectEl( '#js-todo-add' ).addEventListener( 'click', task.create.bind( task ) )
