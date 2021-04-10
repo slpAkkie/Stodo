@@ -177,10 +177,24 @@ const task = {
 
   /**
    * Filter tasks
-   *
-   * @param criteria
    */
-  filter( criteria = [] ) { },
+  filter() {
+    let filterData = this.value.split( ' ' );
+    let filteredTasks = [];
+    tabs.getCurrentTab().forEach( task => {
+      if (
+        contains( filterData, task.title.split( ' ' ) )
+        || contains( filterData, task.until.date )
+        || contains( filterData, task.until.time )
+      ) return filteredTasks.push( task );
+      let fromSub = false;
+      task.subs.forEach( sub => { if ( contains( filterData, sub.title.split( ' ' ) ) ) fromSub = true } );
+
+      if ( fromSub ) filteredTasks.push( task );
+    } );
+
+    render( this.value ? filteredTasks : null );
+  },
 
   /**
    * Calculate status from the until date and time
@@ -363,7 +377,33 @@ function countDays( ms ) {
   return ms / 1000 / 3600 / 24;
 }
 
+/**
+ * Get Date as now but one minute forward
+ *
+ * @returns Date
+ */
 function nextMinute() { return new Date( Date.now() + 60000 ).toLocaleTimeString().slice( 0, -3 ) }
+
+/**
+ * Check if array contains something
+ *
+ * @param {array} where
+ * @param {any} what
+ * @returns {bool}
+ */
+function contains( where, what ) {
+  if ( !Array.isArray( what ) ) what = [ what ];
+
+  let isContain = false
+
+  where.forEach( el => {
+    what.forEach( whatEl => {
+      if ( el === whatEl ) isContain = true
+    } );
+  } );
+
+  return isContain;
+}
 
 
 
@@ -375,10 +415,9 @@ function nextMinute() { return new Date( Date.now() + 60000 ).toLocaleTimeString
 /**
  * Render tasks to the task container
  */
-function render( tab = null ) {
-  if ( !tab ) tab = tabs.getCurrentTab();
-  let todosContainer = task.containerEl,
-    todos = tabs.getCurrentTab();
+function render( todos = null ) {
+  if ( !todos ) todos = tabs.getCurrentTab();
+  let todosContainer = task.containerEl;
   todosContainer.innerHTML = null;
   if ( !todos.length ) todosContainer.append( createEl( `<h3 class="_text-center">В этом списке нет задач</h3>` ) );
   else todos.forEach( ( todo, id ) => insertFirst( todosContainer, task.render( todo, id ) ) );
@@ -736,5 +775,8 @@ window.addEventListener( 'DOMContentLoaded', function () {
 
   /** Open form to create new task */
   selectEl( '#js-todo-add' ).addEventListener( 'click', task.create.bind( task ) )
+
+  /** Search watcher */
+  selectEl( '#js-search-query' ).addEventListener( 'input', task.filter );
 
 } );
