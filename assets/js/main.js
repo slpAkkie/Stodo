@@ -111,7 +111,10 @@ const task = {
 
 
     if ( popup.mode === 'edit' ) task.update( popupData );
-    else tabs.getCurrentTab().push( popupData );
+    else {
+      if ( popupData.completed ) tabs.completed.push( popupData );
+      else tabs.active.push( popupData );
+    }
     popup.hide();
     task.save();
     render();
@@ -123,6 +126,7 @@ const task = {
   update( newData ) {
     tabs.getCurrentTab()[ data.editID ] = newData;
     if ( newData.completed ) this.move( data.editID, tabs.completed );
+    else this.move( data.editID, tabs.active );
   },
 
   /**
