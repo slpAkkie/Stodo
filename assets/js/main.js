@@ -50,6 +50,11 @@ let tabs = {
 const task = {
 
   /**
+   * Filtered tasks
+   */
+  filtered: [],
+
+  /**
    * Tasks container
    */
   container: '.todos-container',
@@ -179,22 +184,27 @@ const task = {
    * Filter tasks
    */
   filter() {
+    task.filtered = [];
+
+    if ( !this.value ) {
+      return render();
+    }
+
     let filterData = this.value.split( ' ' );
-    let filteredTasks = [];
     tabs.getCurrentTab().forEach( cTask => {
       if (
         contains( filterData, cTask.title.split( ' ' ) )
         || contains( filterData, cTask.until.date )
         || contains( filterData, cTask.until.time )
-        || contains( filterData, task.calculateStatus( cTask.until )[ 0 ] )
-      ) return filteredTasks.push( cTask );
+        || contains( filterData, task.calculateStatus( cTask.until )[ 0 ].split( ' ' ) )
+      ) if ( !contains( task.filtered, cTask ) ) return task.filtered.push( cTask );
       let fromSub = false;
       cTask.subs.forEach( sub => { if ( contains( filterData, sub.title.split( ' ' ) ) ) fromSub = true } );
 
-      if ( fromSub ) filteredTasks.push( cTask );
+      if ( fromSub && !contains( task.filtered, cTask ) ) return task.filtered.push( cTask );
     } );
 
-    render( this.value ? filteredTasks : null );
+    render( task.filtered );
   },
 
   /**
@@ -209,7 +219,7 @@ const task = {
     if ( dateDiff < 0 ) return [ 'Просрочено', '_text-danger' ];
     else if ( ( dateDiff = countDays( dateDiff ) ) <= 1 ) return [ 'Сегодня', '_text-success' ];
     else if ( dateDiff <= 2 ) return [ 'Завтра', '_text-success' ];
-    return [ `${until.date}${until.time ? ' ' + until.time : ''}`, '_text-success' ];
+    return [ `Через ${dayDiff( until.date )} дней`, '_text-success' ];
   },
 
   /**
@@ -404,6 +414,10 @@ function contains( where, what ) {
   } );
 
   return isContain;
+}
+
+function dayDiff( date ) {
+  return Math.ceil( ( makeDate( date ) - Date.now() ) / 1000 / 3600 / 24 );
 }
 
 
