@@ -25,8 +25,8 @@ let tabs = {
     return data.active_tab ? 'active' : 'completed';
   },
 
-  getCurrentTab() { return this[this.currentTab] },
-  getInactiveTab() { return this[this.inactiveTab] },
+  getCurrentTab() { return this[ this.currentTab ] },
+  getInactiveTab() { return this[ this.inactiveTab ] },
 
   active: [],
   completed: [],
@@ -67,32 +67,32 @@ const task = {
   edit() {
     data.editID = this.dataID;
     popup.mode = 'edit';
-    popup.fill(tabs.getCurrentTab()[this.dataID]);
+    popup.fill( tabs.getCurrentTab()[ this.dataID ] );
     popup.show();
   },
 
   /**
    * Set task as completed
    */
-  changeCompleteState(checkbox) {
-    let rootTodoEl = parent(this, '[class$=todo]');
-    if (!rootTodoEl) return false;
+  changeCompleteState( checkbox ) {
+    let rootTodoEl = parent( this, '[class$=todo]' );
+    if ( !rootTodoEl ) return false;
 
     let parentID = rootTodoEl.parentID;
     let id = rootTodoEl.dataID;
 
     let curTab = tabs.getCurrentTab();
-    if (parentID !== undefined) {
-      let completed = curTab[parentID].subs[id].completed = this.checked;
-      if (!completed) {
-        curTab[parentID].completed = false;
-        task.move(parentID, tabs.active);
+    if ( parentID !== undefined ) {
+      let completed = curTab[ parentID ].subs[ id ].completed = this.checked;
+      if ( !completed ) {
+        curTab[ parentID ].completed = false;
+        task.move( parentID, tabs.active );
       }
     }
     else {
-      let completed = curTab[id].completed = this.checked;
-      if (completed) task.move(id, tabs.completed);
-      else task.move(id, tabs.active)
+      let completed = curTab[ id ].completed = this.checked;
+      if ( completed ) task.move( id, tabs.completed );
+      else task.move( id, tabs.active )
     }
 
     task.save();
@@ -102,7 +102,7 @@ const task = {
    * Save tasks and rerender
    */
   save() {
-    ls.set('tabs', tabs);
+    ls.set( 'tabs', tabs );
     render();
   },
 
@@ -119,11 +119,11 @@ const task = {
    * @returns {Array}
    */
   calculateStatus( until ) {
-    let date = new Date(`${until.date.replace(/(\d+).(\d+).(\d+)/, '$3-$2-$1')} ${until.time}`);
+    let date = new Date( `${until.date.replace( /(\d+).(\d+).(\d+)/, '$3-$2-$1' )} ${until.time}` );
     let dateDiff = date - Date.now();
-    if (dateDiff < 0) return ['Просрочено', '_text-danger'];
-    else if ((dateDiff = (dateDiff / 1000 / 3600 / 24)) <= 1) return ['Сегодня', '_text-success'];
-    else if (dateDiff <= 2) return ['Завтра', '_text-success'];
+    if ( dateDiff < 0 ) return [ 'Просрочено', '_text-danger' ];
+    else if ( ( dateDiff = ( dateDiff / 1000 / 3600 / 24 ) ) <= 1 ) return [ 'Сегодня', '_text-success' ];
+    else if ( dateDiff <= 2 ) return [ 'Завтра', '_text-success' ];
     return [ `${until.date} ${until.time}`, '_text-success' ];
   },
 
@@ -142,7 +142,7 @@ const task = {
     let markup = `<div class="todo">
       <div class="todo__inner row">
         <div class="col">
-          <input class="todo__completed-checkbox _mt-1" type="checkbox" ${completed ? 'checked' : ''} ${!task.allSubsCompleted(subs) ? 'disabled' : ''}>
+          <input class="todo__completed-checkbox _mt-1" type="checkbox" ${completed ? 'checked' : ''} ${!task.allSubsCompleted( subs ) ? 'disabled' : ''}>
         </div>
         <div class="todo__title-wrapper _flex sm:col lg:row _grow _justify-between _ml-4">
           <div class="todo__title">
@@ -168,7 +168,7 @@ const task = {
     todo.dataID = id;
 
     selectEl( '.todo__title-wrapper', todo ).addEventListener( 'click', task.edit.bind( todo ) );
-    each(selectEl('.todo__completed-checkbox', todo), el => el.addEventListener('click', task.changeCompleteState));
+    each( selectEl( '.todo__completed-checkbox', todo ), el => el.addEventListener( 'click', task.changeCompleteState ) );
 
     return todo;
   },
@@ -204,9 +204,9 @@ const task = {
     return sub;
   },
 
-  allSubsCompleted(subs) {
+  allSubsCompleted( subs ) {
     let subsCompleted = true;
-    subs.forEach(el => subsCompleted = subsCompleted && el.completed);
+    subs.forEach( el => subsCompleted = subsCompleted && el.completed );
 
     return subsCompleted;
   },
@@ -214,13 +214,13 @@ const task = {
   /**
    * Move task between tabs
    */
-  move(id, tab) {
+  move( id, tab ) {
     let currentTab = tabs.getCurrentTab();
 
-    tab.push(currentTab[id]);
+    tab.push( currentTab[ id ] );
 
-    for (let i = id; i < currentTab.length - 1; i++)
-      currentTab[i] = currentTab[i + 1];
+    for ( let i = id; i < currentTab.length - 1; i++ )
+      currentTab[ i ] = currentTab[ i + 1 ];
 
     currentTab.length--;
   },
@@ -262,11 +262,11 @@ function insertFirst( parent, child ) {
  * @param element
  * @param selector
  */
-function parent(element, selector = null) {
-  if (!selector) return element.parentElement;
+function parent( element, selector = null ) {
+  if ( !selector ) return element.parentElement;
 
-  if (element.matches('body')) return null;
-  if (!element.parentElement.matches(selector)) return parent(element.parentElement, selector);
+  if ( element.matches( 'body' ) ) return null;
+  if ( !element.parentElement.matches( selector ) ) return parent( element.parentElement, selector );
   else return element.parentElement;
 }
 
@@ -294,7 +294,7 @@ function extractFilters() { }
  * Switch tab
  */
 function tabSwitch() {
-  if (hasClass(this, 'active')) return;
+  if ( hasClass( this, 'active' ) ) return;
 
   let id = data.active_tab = +!data.active_tab;
   addClass( selectEl( `.tab[data-id="${id}"]` ), 'active' );
