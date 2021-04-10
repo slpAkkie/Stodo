@@ -181,16 +181,17 @@ const task = {
   filter() {
     let filterData = this.value.split( ' ' );
     let filteredTasks = [];
-    tabs.getCurrentTab().forEach( task => {
+    tabs.getCurrentTab().forEach( cTask => {
       if (
-        contains( filterData, task.title.split( ' ' ) )
-        || contains( filterData, task.until.date )
-        || contains( filterData, task.until.time )
-      ) return filteredTasks.push( task );
+        contains( filterData, cTask.title.split( ' ' ) )
+        || contains( filterData, cTask.until.date )
+        || contains( filterData, cTask.until.time )
+        || contains( filterData, task.calculateStatus( cTask.until )[ 0 ] )
+      ) return filteredTasks.push( cTask );
       let fromSub = false;
-      task.subs.forEach( sub => { if ( contains( filterData, sub.title.split( ' ' ) ) ) fromSub = true } );
+      cTask.subs.forEach( sub => { if ( contains( filterData, sub.title.split( ' ' ) ) ) fromSub = true } );
 
-      if ( fromSub ) filteredTasks.push( task );
+      if ( fromSub ) filteredTasks.push( cTask );
     } );
 
     render( this.value ? filteredTasks : null );
