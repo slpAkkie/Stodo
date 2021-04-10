@@ -110,7 +110,10 @@ const task = {
   /**
    * Update an exiting task
    */
-  update( newData ) { tabs.getCurrentTab()[ data.editID ] = newData },
+  update( newData ) {
+    tabs.getCurrentTab()[ data.editID ] = newData;
+    if ( newData.completed ) this.move( data.editID, tabs.completed );
+  },
 
   /**
    * Delete task
