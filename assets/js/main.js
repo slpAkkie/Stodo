@@ -11,6 +11,13 @@ const data = {
 
 
 /**
+ * LS for test
+ * {"data":{"currentTab":"active","inactiveTab":"completed","active":[{"title":"First todo","until":{"date":"10.01.2021","time":"11:00"},"subs":[],"completed":false},{"title":"Second todo","until":{"date":"11.04.2021","time":"21:00"},"subs":[{"title":"First sub for second todo","completed":false}],"completed":false}],"completed":[]}}
+ */
+
+
+
+/**
  * --------------------------------------------------
  * Tabs data
  */
@@ -57,9 +64,68 @@ const task = {
   },
 
   /**
+   * Add new task to the todo list
+   */
+  add() {
+    popup.clearErrors();
+
+    let popupData = popup.getData();
+    let errors = false;
+
+    if ( !popupData.title ) {
+      addClass( popup.titleEl, 'input_wrong' );
+      errors = true;
+    }
+    if ( popupData.until.date ) {
+      if ( popupData.until.time && makeDate( popupData.until.date, popupData.until.time ) - Date.now() < 0 ) {
+        addClass( popup.dateEl, 'input_wrong' );
+        addClass( popup.timeEl, 'input_wrong' );
+        errors = true;
+      }
+      else if ( makeDate( popupData.until.date, nextMinute() ) - Date.now() < 0 ) {
+        addClass( popup.dateEl, 'input_wrong' );
+        errors = true;
+      }
+    } else if ( popupData.until.time ) {
+      addClass( popup.dateEl, 'input_wrong' );
+      errors = true;
+    }
+
+    each( popupData.subs, ( el, i ) => {
+      if ( !el.title ) addClass( selectEl( '.popup__sub-title' )[ i ], 'input_wrong' );
+      errors = true;
+    } );
+
+    if ( errors ) return;
+
+
+
+    if ( popup.mode === 'edit' ) task.update( popupData );
+    else tabs.getCurrentTab().push( popupData );
+    popup.hide();
+    task.save();
+    render();
+  },
+
+  /**
+   * Update an exiting task
+   */
+  update( newData ) { tabs.getCurrentTab()[ data.editID ] = newData },
+
+  /**
    * Delete task
    */
-  delete() { },
+  delete( id ) {
+    let currentTab = tabs.getCurrentTab();
+
+    for ( let i = id; i < currentTab.length - 1; i++ )
+      currentTab[ i ] = currentTab[ i + 1 ];
+
+    currentTab.length--;
+    popup.hide();
+    task.save();
+    render();
+  },
 
   /**
    * Open popup window to edit task
@@ -119,10 +185,11 @@ const task = {
    * @returns {Array}
    */
   calculateStatus( until ) {
-    let date = new Date( `${until.date.replace( /(\d+).(\d+).(\d+)/, '$3-$2-$1' )} ${until.time}` );
+    if ( !until.date ) return [ '', '' ];
+    let date = makeDate( until.date, until.time || nextMinute() );
     let dateDiff = date - Date.now();
     if ( dateDiff < 0 ) return [ 'Просрочено', '_text-danger' ];
-    else if ( ( dateDiff = ( dateDiff / 1000 / 3600 / 24 ) ) <= 1 ) return [ 'Сегодня', '_text-success' ];
+    else if ( ( dateDiff = countDays( dateDiff ) ) <= 1 ) return [ 'Сегодня', '_text-success' ];
     else if ( dateDiff <= 2 ) return [ 'Завтра', '_text-success' ];
     return [ `${until.date} ${until.time}`, '_text-success' ];
   },
@@ -270,6 +337,29 @@ function parent( element, selector = null ) {
   else return element.parentElement;
 }
 
+/**
+ * Make date from string in format dd.mm.yyyy
+ *
+ * @param {string} date
+ * @param {string} time
+ * @returns Date
+ */
+function makeDate( date, time = '' ) {
+  return new Date( `${date.replace( /(\d+).(\d+).(\d+)/, '$3-$2-$1' )}${time ? ' ' + time : ''}` );
+}
+
+/**
+ * Count how much days in seconds
+ *
+ * @param {number} ms
+ * @returns number
+ */
+function countDays( ms ) {
+  return ms / 1000 / 3600 / 24;
+}
+
+function nextMinute() { return new Date( Date.now() + 60000 ).toLocaleTimeString().slice( 0, -3 ) }
+
 
 
 /**
@@ -280,7 +370,8 @@ function parent( element, selector = null ) {
 /**
  * Render tasks to the task container
  */
-function render() {
+function render( tab = null ) {
+  if ( !tab ) tab = tabs.getCurrentTab();
   let todosContainer = task.containerEl,
     todos = tabs.getCurrentTab();
   todosContainer.innerHTML = null;
@@ -338,6 +429,26 @@ const popup = {
   get controlButtons() { return selectEl( this.controlButtonsSelector ) },
 
   /**
+   * Elements from popup
+   */
+  get titleEl() { return selectEl( '#js-popup-title' ) },
+  get dateEl() { return selectEl( '#js-popup-date' ) },
+  get timeEl() { return selectEl( '#js-popup-time' ) },
+  get completedEl() { return selectEl( '#js-popup-completed' ) },
+
+  /**
+   * Values from popup
+   */
+  get title() { return this.titleEl.value },
+  get date() {
+    let untilDate = this.dateEl.valueAsDate;
+    return untilDate ? untilDate.toLocaleDateString() : null;
+  },
+  get time() { return this.timeEl.value || null },
+  get completed() { return this.completedEl.checked },
+  get childs() { return this.getSubsData() },
+
+  /**
    * Show popup and generate control buttons
    */
   show() {
@@ -350,14 +461,22 @@ const popup = {
     if ( editMode ) {
       let deleteButton = createEl( `<input type="button" value="Удалить" class="button button_danger popup__delete _ml-2">` );
       this.controlButtons.append( deleteButton );
-      deleteButton.addEventListener( 'click', task.delete );
+      deleteButton.addEventListener( 'click', task.delete.bind( deleteButton, data.editID ) );
     }
 
     let saveButton = createEl( `<input type="button" value="${editMode ? 'Сохранить' : 'Создать'}" class="button button_success popup__save _ml-2">` );
     this.controlButtons.append( saveButton );
-    saveButton.addEventListener( 'click', task.save );
+    saveButton.addEventListener( 'click', task.add.bind( selectEl( '.popup__body', popup.el ) ) );
 
     addClass( this.el, '_shown' );
+  },
+
+  /**
+   * Remove all wrong classes from inputs
+   */
+  clearErrors() {
+    let prevsErorrs = selectEl( '.input_wrong', popup.el );
+    prevsErorrs && each( prevsErorrs, el => removeClass( el, 'input_wrong' ) )
   },
 
   /**
@@ -380,6 +499,8 @@ const popup = {
     selectEl( '#js-subs-container' ).innerHTML = null;
     addClass( selectEl( '#js-subs-container' ), this.emptySubContainerClass );
 
+    this.clearErrors();
+
     this.controlButtons.innerHTML = null;
   },
 
@@ -388,7 +509,14 @@ const popup = {
    *
    * @param data
    */
-  fill( data = {} ) { },
+  fill( data = {} ) {
+    this.titleEl.value = data.title;
+    if ( data.until.date ) {
+      this.dateEl.value = data.until.date.replace( /(\d+).(\d+).(\d+)/, '$3-$2-$1' ) || null;
+      this.timeEl.value = data.until.time || null;
+    }
+    this.completedEl.checked = data.completed || false;
+  },
 
   /**
    * Get data from popup
@@ -397,11 +525,11 @@ const popup = {
    */
   getData() {
     let data = { until: {} };
-    data.title = selectEl( '#js-popup-title' ).value;
-    data.until.date = selectEl( '#js-popup-date' ).valueAsDate.toLocaleDateString();
-    data.until.time = selectEl( '#js-popup-time' ).value;
-    data.completed = selectEl( '#js-popup-completed' ).checked;
-    data.subs = this.getSubsData();
+    data.title = this.title;
+    data.until.date = this.date;
+    data.until.time = this.time;
+    data.completed = this.completed;
+    data.subs = this.childs;
 
     return data;
   },
@@ -426,11 +554,11 @@ const popup = {
   /**
    * Add new sub task to the popup
    */
-  addSub() {
+  addSub( completed = false, title = '' ) {
     let markup = `
       <div class="popup__sub row _align-center">
-        <input type="checkbox" class="popup__sub-checkbox">
-        <input type="text" class="popup__sub-title input _grow _ml-4">
+        <input type="checkbox" class="popup__sub-checkbox" ${completed ? 'checked' : ''}>
+        <input type="text" class="popup__sub-title input _grow _ml-4" value="${title}">
         <span class="popup__sub-delete-button _ml-2 _font-small _text-danger _text-semi-bold">Удалить</span>
       </div>
     `;
@@ -519,9 +647,10 @@ function selectEl( selector, parent = document ) {
  * @param callback
  */
 function each( els, callback ) {
+  if ( !els ) return;
   if ( !Array.isArray( els ) ) els = [ els ];
 
-  els.forEach( ( el, i ) => { callback.call( el, el ) } )
+  els.forEach( ( el, i ) => { callback.call( el, el, i ) } )
 }
 
 /**
