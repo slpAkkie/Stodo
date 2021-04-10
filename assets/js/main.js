@@ -127,6 +127,7 @@ const task = {
    */
   update( newData ) {
     tabs.getCurrentTab()[ data.editID ] = newData;
+    if ( !task.allSubsCompleted( newData.subs ) ) newData.completed = false;
     if ( newData.completed ) this.move( data.editID, tabs.completed );
     else this.move( data.editID, tabs.active );
   },
