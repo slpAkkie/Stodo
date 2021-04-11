@@ -23,10 +23,10 @@
       <h1 class="header-title _text-center _py-5">Задачи</h1>
 
       <div class="row">
-        <input type="text" class="input _w-100" id="js-filter-query" placeholder="Поиск по содержимому или дате">
+        <input type="text" class="input _w-100" id="filter-query" placeholder="Поиск по содержимому или дате">
       </div>
       <div class="row _justify-center _mt-4">
-        <div class="button">Добавить</div>
+        <div class="button" id="add-task">Добавить</div>
       </div>
     </header>
 
@@ -39,19 +39,6 @@
           Завершенные</div>
       </div>
       <div class="tasks-container _border-primary _p-4">
-        <div class="task">
-          <div class="task__inner row _justify-evenly _align-center _py-2 _px-3 _rounded">
-            <input type="checkbox" class="popup__task-completed">
-            <div class="_text-bold _mx-2 _grow">Название задачи</div>
-            <div class="_text-semi-bold _text-muted">Статус</div>
-          </div>
-          <div class="task__subs-container _mt-1 _py-3 _pl-1">
-            <div class="task__sub row _justify-evenly _align-center _py-2 _px-3 _rounded">
-              <input type="checkbox" class="popup__sub-completed">
-              <div class="_text-bold _mx-2 _grow">Название задачи</div>
-            </div>
-          </div>
-        </div>
       </div>
     </main>
   </div>
@@ -109,10 +96,8 @@
         </div>
       </main>
       <footer class="popup__footer _py-4 _px-5">
-        <div class="sm:col lg:row lg:_justify-end">
+        <div class="sm:col lg:row lg:_justify-end" id="js-popup-controls">
           <div class="button" id="popup-cancel">Отмена</div>
-          <div class="button button_danger _ml-2" id="popup-delete">Удалить</div>
-          <div class="button button_success _ml-2" id="popup-save">Сохранить</div>
         </div>
       </footer>
     </div>
@@ -121,6 +106,8 @@
   <!-- JS -->
   <script src="/assets/js/functions.js"></script>
   <script src="/assets/js/popup.js"></script>
+  <script src="/assets/js/TaskList.js"></script>
+  <script src="/assets/js/Task.js"></script>
   <script src="/assets/js/main.js"></script>
 
 </body>
