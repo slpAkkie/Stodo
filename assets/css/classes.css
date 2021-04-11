@@ -12,7 +12,38 @@
 
 .input:not(.input_wrong):focus { border-color: var(--color-primary) }
 
-.button { cursor: pointer }
+.button {
+  cursor: pointer;
+
+  font-variation-settings: 'wght' 555;
+}
+
+.button_danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.button.button_danger:hover {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.button_success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.button.button_success:hover {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.button_ondark {
+  color: white;
+
+  background-color: var(--color-secondary_1);
+  border-color: var(--color-secondary_1_d1);
+}
 
 .button:hover {
   color: white;
@@ -21,10 +52,17 @@
   border-color: var(--color-primary);
 }
 
+.label { width: 100% }
+.label-text {
+  margin-bottom: .25em;
+  font-variation-settings: 'wght' 545;
+}
+
 
 
 .container {
   max-width: 856px;
+  min-width: 320px;
 
   margin-left: auto;
   margin-right: auto;

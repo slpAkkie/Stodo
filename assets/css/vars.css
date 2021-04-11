@@ -3,7 +3,10 @@
   --color-primary: rgb(57, 106, 214);
   --color-secondary: rgb(122, 141, 201);
   --color-secondary_1: rgb(154, 167, 207);
-  --color-secondary_2: rgb(229 232 243);
+  --color-secondary_1_d1: rgb(135, 149, 190);
+  --color-secondary_1_op1: rgba(154, 167, 207, 75%);
+  --color-secondary_1_op2: rgba(154, 167, 207, 25%);
+  --color-secondary_2: rgb(229, 232, 243);
 
   --color-success: rgb(4, 204, 87);
   --color-danger: rgb(204, 67, 4);

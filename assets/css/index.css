@@ -1,3 +1,5 @@
+/* Main */
+
 .tab {
   cursor: pointer;
 
@@ -10,4 +12,73 @@
   color: white;
 
   background-color: var(--color-primary);
+}
+
+
+
+/* Task */
+
+.task__inner:hover {
+  background-color: var(--color-secondary_2);
+
+  cursor: pointer;
+}
+
+.task__subs-container {
+  position: relative;
+
+  margin-left: 2.25em;
+}
+
+.task__subs-container::after {
+  content: '';
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  width: 2px;
+  height: 100%;
+
+  background-color: var(--color-primary);
+}
+
+
+
+/* Popup */
+
+.popup {
+  display: none;
+
+  z-index: 101;
+}
+
+.popup.popup_shown { display: block }
+
+.popup__overlay {
+  background-color: var(--color-secondary_1_op1);
+
+  z-index: -1;
+}
+
+#popup-close { cursor: pointer }
+#popup-close:hover { text-decoration: underline }
+
+.popup__inner {
+  z-index: 1;
+}
+
+.popup__header {
+  background-color: var(--color-secondary_1);
+  border-radius: .25em .25em 0 0;
+}
+
+.popup__main,
+.popup__footer {
+  background-color: var(--color-secondary_2);
+}
+
+.popup__subs-container {
+  background-color: var(--color-secondary_1_op2);
 }
