@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+  <!-- Meta -->
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css">
+
+  <!-- Title -->
+  <title>Stodo</title>
+</head>
+
+<body>
+
+  <div class="container">
+    <header>
+
+      <h1 class="header-title _text-center _py-5">Задачи</h1>
+
+      <div class="row">
+        <input type="text" class="input _w-100" id="js-filter-query" placeholder="Поиск по содержимому или дате">
+      </div>
+      <div class="row _justify-center _mt-4">
+        <div class="button _text-semi-bold">Добавить</div>
+      </div>
+    </header>
+
+    <main class="_mt-5">
+      <div class="sm:col lg:row _justify-evenly">
+        <div class="tab tab_active col _justify-center _align-center _py-3 _grow _text-semi-bold _text-s2">Активные
+        </div>
+        <div class="tab col _justify-center _align-center _py-3 _grow _text-semi-bold _text-s2">Завершенные</div>
+      </div>
+      <div class="_border-primary _p-4"></div>
+    </main>
+  </div>
+
+  <div class="popup">
+    <div class="popup__overlay"></div>
+    <div class="popup__inner">
+      <header></header>
+      <main></main>
+      <footer></footer>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="/assets/js/functions.js"></script>
+  <script src="/assets/js/popup.js"></script>
+  <script src="/assets/js/main.js"></script>
+
+</body>
+
+</html>

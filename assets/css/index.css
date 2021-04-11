@@ -1,0 +1,13 @@
+.tab {
+  cursor: pointer;
+
+  transition: all .15s ease;
+}
+
+.tab:not(.tab_active):hover { background-color: var(--color-secondary_2) }
+
+.tab_active {
+  color: white;
+
+  background-color: var(--color-primary);
+}
