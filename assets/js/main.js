@@ -11,12 +11,8 @@ window.state = {
 // Event listeners
 window.addEventListener( 'DOMContentLoaded', function () {
 
-  if ( tabs = storage.get( 'tabs' ) ) {
-    TaskList.active = tabs.active;
-    TaskList.completed = tabs.completed;
-  } else {
-    storage.save( 'tabs', { active: TaskList.active, completed: TaskList.completed } );
-  }
+  if ( tabs = storage.get( 'tabs' ) ) TaskList.load( tabs );
+  else TaskList.save();
 
   sel( '#add-task' )[ 0 ].addEventListener( 'click', Task.create );
   sel( '#popup-close' )[ 0 ].addEventListener( 'click', Popup.hide.bind( Popup ) );
