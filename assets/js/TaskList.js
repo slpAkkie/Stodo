@@ -10,6 +10,9 @@ let TaskList = {
     [], // 1: Completed
   ],
 
+  get active() { return TaskList.tabs[ 0 ] },
+  get completed() { return TaskList.tabs[ 1 ] },
+
 
 
 
@@ -58,6 +61,22 @@ let TaskList = {
    * @returns {Array}
    */
   getTasksByFilter( filter ) { return [] },
+
+  /**
+   * Push task to active tab
+   *
+   * @param {Object} task
+   * @returns {void}
+   */
+  pushActive( task ) { TaskList.tabs[ 0 ].push( task ) },
+
+  /**
+   * Push task to completed tab
+   *
+   * @param {Object} task
+   * @returns {void}
+   */
+  pushCompleted( task ) { TaskList.tabs[ 1 ].unshift( task ) },
 
 
 
