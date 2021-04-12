@@ -14,7 +14,7 @@ window.addEventListener( 'DOMContentLoaded', function () {
   if ( tabs = storage.get( 'tabs' ) ) TaskList.load( tabs );
   else TaskList.save();
 
-  sel( '#add-task' )[ 0 ].addEventListener( 'click', Task.create );
+  sel( '#task-new' )[ 0 ].addEventListener( 'click', Task.create );
   sel( '#popup-close' )[ 0 ].addEventListener( 'click', Popup.hide.bind( Popup ) );
 
   each( sel( '.tab' ), el => el.addEventListener( 'click', switchTab ) );
