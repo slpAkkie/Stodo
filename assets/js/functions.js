@@ -129,6 +129,23 @@ function contains( source, values ) {
   return contain
 }
 
+/**
+ * Make date from strings
+ *
+ * @param {string} date
+ * @param {string} time
+ * @returns {Date}
+ */
+function date( date, time = false ) { return new Date( `${date}${time ? `T${time}` : 'T23:59'}` ) }
+
+/**
+ * Returns how much days in ms
+ *
+ * @param {number} ms
+ * @returns {number}
+ */
+function msToDays( ms ) { return ms / 1000 / 3600 / 24 }
+
 
 
 
