@@ -6,20 +6,30 @@
   transition: all .15s ease;
 }
 
-.tab:not(.tab_active):hover { background-color: var(--color-secondary_2) }
+.tab:not(.tab_active):hover { background-color: var(--color-light) }
 
 .tab_active {
   color: white;
 
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
+
+
+
+
+
+
+
 
 
 
 /* Task */
 
+.tasks-container { border: 1px solid var(--color-accent) }
+
 .task__inner:hover {
-  background-color: var(--color-secondary_2);
+  background-color: var(--color-light);
+  border-radius: .25em;
 
   cursor: pointer;
 }
@@ -41,8 +51,15 @@
   width: 2px;
   height: 100%;
 
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
+
+
+
+
+
+
+
 
 
 
@@ -57,28 +74,24 @@
 .popup.popup_shown { display: block }
 
 .popup__overlay {
-  background-color: var(--color-secondary_1_op1);
+  background-color: var(--color-neutral);
 
   z-index: -1;
+}
+
+.popup__inner { z-index: 1 }
+
+.popup__header {
+  color: var(--color-light);
+
+  background-color: var(--color-darker);
+  border-radius: .25em .25em 0 0;
 }
 
 #popup-close { cursor: pointer }
 #popup-close:hover { text-decoration: underline }
 
-.popup__inner {
-  z-index: 1;
-}
-
-.popup__header {
-  background-color: var(--color-secondary_1);
-  border-radius: .25em .25em 0 0;
-}
+.popup__sub + .popup__sub { margin-top: .25em }
 
 .popup__main,
-.popup__footer {
-  background-color: var(--color-secondary_2);
-}
-
-.popup__subs-container {
-  background-color: var(--color-secondary_1_op2);
-}
+.popup__footer { background-color: var(--color-light); }
