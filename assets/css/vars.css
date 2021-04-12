@@ -1,14 +1,12 @@
 :root {
 
-  --color-primary: rgb(57, 106, 214);
-  --color-secondary: rgb(122, 141, 201);
-  --color-secondary_1: rgb(154, 167, 207);
-  --color-secondary_1_d1: rgb(135, 149, 190);
-  --color-secondary_1_op1: rgba(154, 167, 207, 75%);
-  --color-secondary_1_op2: rgba(154, 167, 207, 25%);
-  --color-secondary_2: rgb(229, 232, 243);
+  --color-accent: rgb(57 106 214);
+  --color-dark: rgb(104 109 118);
+  --color-darker: rgb(55 58 64);
+  --color-light: rgb(238 238 238);
+  --color-neutral: rgb(155 164 180);
 
-  --color-success: rgb(4, 204, 87);
-  --color-danger: rgb(204, 67, 4);
+  --color-green: rgb(40 150 114);
+  --color-red: rgb(240 89 69);
 
 }
