@@ -1,64 +1,81 @@
+/* Shared */
+
 .input,
 .button {
   padding: 4px 15px;
 
-  border: 1px solid var(--color-secondary_1);
+  border: 1px solid var(--color-neutral);
   border-radius: .25em;
 
   transition: all .15s ease;
 }
 
-.input_wrong { border-color: var(--color-danger) }
 
-.input:not(.input_wrong):focus { border-color: var(--color-primary) }
+
+
+
+
+
+
+
+
+/* Input */
+
+.input_wrong { border-color: var(--color-red) }
+
+.input:not(.input_wrong):focus { border-color: var(--color-accent) }
+
+
+
+
+
+
+
+
+
+
+/* Button */
 
 .button {
-  cursor: pointer;
-
+  color: var(--color, inherit);
   font-variation-settings: 'wght' 555;
-}
-
-.button_danger {
-  color: var(--color-danger);
-  border-color: var(--color-danger);
-}
-
-.button.button_danger:hover {
-  background-color: var(--color-danger);
-  border-color: var(--color-danger);
-}
-
-.button_success {
-  color: var(--color-success);
-  border-color: var(--color-success);
-}
-
-.button.button_success:hover {
-  background-color: var(--color-success);
-  border-color: var(--color-success);
-}
-
-.button_ondark {
-  color: white;
-
-  background-color: var(--color-secondary_1);
-  border-color: var(--color-secondary_1_d1);
+  border-color: var(--color, var(--color-neutral));
+  cursor: pointer;
 }
 
 .button:hover {
   color: white;
-
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background-color: var(--color, var(--color-accent));
+  border-color: var(--color, var(--color-accent));
 }
+
+.button_danger { --color: var(--color-red) }
+.button_success { --color: var(--color-green) }
+
+
+
+
+
+
+
+
+
+
+/* Label */
 
 .label { width: 100% }
-.label-text {
-  margin-bottom: .25em;
-  font-variation-settings: 'wght' 545;
-}
+.label-text { font-variation-settings: 'wght' 545 }
 
 
+
+
+
+
+
+
+
+
+/* Container */
 
 .container {
   max-width: 856px;
