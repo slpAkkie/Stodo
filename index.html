@@ -17,7 +17,12 @@
 
 <body>
 
+  <!-- --------------------------------------------------
+  Content container -->
   <div class="container">
+
+    <!-- -------------------------
+    Header, search and button to add new task -->
     <header>
 
       <h1 class="header-title _text-center _py-5">Задачи</h1>
@@ -26,80 +31,91 @@
         <input type="text" class="input _w-100" id="filter-query" placeholder="Поиск по содержимому или дате">
       </div>
       <div class="row _justify-center _mt-4">
-        <div class="button" id="add-task">Добавить</div>
+        <div class="button" id="task-new">Добавить</div>
       </div>
+
     </header>
 
+    <!-- -------------------------
+    Tabs and task list -->
     <main class="_mt-5">
+
       <div class="sm:col lg:row _justify-evenly">
-        <div id="active" class="tab tab_active col _justify-center _align-center _py-3 _grow _text-semi-bold _text-s2">
+        <div data-id="0" class="tab tab_active col _justify-center _align-center _py-3 _grow _text-bold _text-medium">
           Активные
         </div>
-        <div id="completed" class="tab col _justify-center _align-center _py-3 _grow _text-semi-bold _text-s2">
+        <div data-id="1" class="tab col _justify-center _align-center _py-3 _grow _text-bold _text-medium">
           Завершенные</div>
       </div>
-      <div class="tasks-container _border-primary _p-4">
-      </div>
+      <div class="tasks-container _p-4"></div>
+
     </main>
   </div>
 
+  <!-- --------------------------------------------------
+  Popup -->
   <div class="popup _fullscreen">
+
+    <!-- Overaly -->
     <div class="popup__overlay _fullscreen"></div>
+
+    <!-- Popup window -->
     <div class="popup__inner container _mt-5">
-      <header class="popup__header row _justify-between _align-center _py-2 _px-4">
-        <div class="col">
-          <h3>Всплывающее окно</h3>
-        </div>
-        <div class="col _text-semi-bold" id="popup-close">Закрыть</div>
-      </header>
-      <main class="popup__main _p-5">
+
+      <!-- -------------------------
+      Top line with close button -->
+      <div class="popup__header row _justify-end _align-center _py-2 _px-4">
+        <span class="col _text-semi-bold" id="popup-close">Закрыть</span>
+      </div>
+
+      <!-- -------------------------
+      Fields -->
+      <div class="popup__main _p-5">
+
+        <!-- Title -->
         <div class="row">
           <label class="label">
-            <p class="label-text">Название задачи</p>
-            <input type="text" id="popup-title" class="input _w-100">
+            <span class="label-text">Название задачи</span>
+            <input type="text" id="popup-title" class="input _w-100 _mt-1">
           </label>
         </div>
         <div class="sm:col lg:row _justify-evenly _mt-4">
+          <!-- Date -->
           <div class="row _grow lg:_mr-3 _w-100">
             <label class="label">
-              <p class="label-text">К дате</p>
-              <input type="date" id="popup-date" class="input _w-100">
+              <span class="label-text">К дате</span>
+              <input type="date" id="popup-date" class="input _w-100 _mt-1">
             </label>
           </div>
+          <!-- Time -->
           <div class="row _grow lg:_ml-3 sm:_mt-2 _w-100">
             <label class="label">
-              <p class="label-text">Ко времени</p>
-              <input type="time" id="popup-time" class="input _w-100">
+              <span class="label-text">Ко времени</span>
+              <input type="time" id="popup-time" class="input _w-100 _mt-1">
             </label>
           </div>
         </div>
+        <!-- Completed -->
         <div class="row _mt-4">
           <label class="label row _align-center">
             <input type="checkbox" id="popup-completed">
-            <p class="_ml-2">Выполнено</p>
+            <span class="_ml-2">Выполнено</span>
           </label>
         </div>
-        <div class="row _justify-between _align-center _mt-4">
-          <p>Подзадачи</p>
-          <div class="button button_ondark">Добавить</div>
+        <!-- Sub tasks -->
+        <div class="row _justify-between _align-center _mt-5">
+          <h3>Подзадачи</h3>
+          <div class="button" id="popup-sub-add">Добавить</div>
         </div>
-        <div class="popup__subs-container col _mt-4 _p-3 _rounded _border-secondary">
+        <div class="popup__subs-container col _mt-2 _py-1"></div>
 
-          <!-- Sub -->
-          <div class="popup__sub row _justify-evenly _align-center">
-            <input type="checkbox" class="popup__sub-completed">
-            <input type="text" class="input _mx-2 _grow">
-            <div class="button button_danger">Удалить</div>
-          </div>
-          <!-- End Sub -->
+      </div>
 
-        </div>
-      </main>
-      <footer class="popup__footer _py-4 _px-5">
-        <div class="sm:col lg:row lg:_justify-end" id="js-popup-controls">
-          <div class="button" id="popup-cancel">Отмена</div>
-        </div>
-      </footer>
+      <!-- -------------------------
+      Control buttons -->
+      <div class="popup__footer _py-4 _px-5">
+        <div class="sm:col lg:row lg:_justify-end" id="js-popup-controls"></div>
+      </div>
     </div>
   </div>
 
