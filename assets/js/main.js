@@ -1,24 +1,38 @@
-// App state
+/** App state */
+
 window.state = {
-  active_tab: 'active',
-  openedTaskID: null,
-  openedMode: null,
-  filterQuery: '',
+
+  activeTabID: 0,
+
+  filter: '',
+
 };
 
 
 
-// Event listeners
+
+
+
+
+
+
+
+/** Initialize */
 window.addEventListener( 'DOMContentLoaded', function () {
 
-  if ( tabs = storage.get( 'tabs' ) ) TaskList.load( tabs );
-  else TaskList.save();
+  checkStoreVersion();
 
-  sel( '#add-task' )[ 0 ].addEventListener( 'click', Task.create );
-  sel( '#popup-close' )[ 0 ].addEventListener( 'click', Popup.hide.bind( Popup ) );
+  // Load tabs from storage or save empty data
+  ( tabs = storage.get( 'tabs' ) ) ? TaskList.load( tabs ) : TaskList.save();
 
-  each( sel( '.tab' ), el => el.addEventListener( 'click', switchTab ) );
+  select( '#task-new' )[ 0 ].addEventListener( 'click', Popup.show );
+  select( '#popup-close' )[ 0 ].addEventListener( 'click', Popup.hide );
+  select( '#popup-sub-add' )[ 0 ].addEventListener( 'click', Popup.addSub );
+  each( select( '.tab' ), tab => tab.addEventListener( 'click', switchTab ) );
 
+
+
+  // First render
   render();
 
 } );

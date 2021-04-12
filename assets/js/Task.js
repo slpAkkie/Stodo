@@ -1,79 +1,140 @@
 const Task = {
 
-  create() {
-    window.state.openedMode = 'new';
-    Popup.show();
-  },
-  add() { },
-  edit( id ) {
-    console.log( 'Редакировать ' + id );
-  },
-  delete() { },
-  getStatus( task ) {
-    return [ 'Скоро', '_text-muted' ];
-  },
-  changeCompletedState( checkbox ) {
-    let completed = checkbox.checked;
+  /**
+   * Handle click on task element
+   *
+   * @returns {void}
+   */
+  editHandler() { Task.edit( this.taskID ) },
 
-    if ( checkbox.parentID !== undefined ) {
-      if ( !( TaskList.allCurrent()[ checkbox.parentID ].subs[ checkbox.subID ].completed = completed ) )
-        Task.setUncompleted( checkbox.parentID );
-    }
-    else {
-      if ( completed ) Task.setCompleted( checkbox.taskID );
-      else Task.setUncompleted( checkbox.taskID );
-    }
+  /**
+   * Opens popup window in edit mode and fill it with task data
+   *
+   * @param {number} taskID
+   * @returns {void}
+   */
+  edit( taskID ) {
+    Popup.show( 'edit' );
+    Popup.fillWith( TaskList.getTask( taskID ) );
+  },
+
+  /**
+   * Update an exiting task by it's id
+   *
+   * @param {number} taskID
+   * @returns {boolean|Array} True if task was updated successfuly or Array with wrong fields
+   */
+  update( taskID, taskData ) {
+    TaskList.getTask( taskID ) = taskData;
+
+    // TODO: check if it has been completed
 
     TaskList.save();
-  },
-  setCompleted( id ) {
-    TaskList.allCurrent()[ id ].completed = true;
-    TaskList.moveToCompleted( id );
-  },
-  setUncompleted( id ) {
-    TaskList.allCurrent()[ id ].completed = false;
-    TaskList.moveToActive( id );
-  },
-  allSubsCompleted( obj ) {
-    let allSubsCompleted = true;
-    obj.subs.forEach( el => allSubsCompleted = el.completed && allSubsCompleted )
+    render();
 
-    return allSubsCompleted;
+    return true;
   },
 
-  render( obj, id ) {
-    let [ status, statusClass ] = this.getStatus( obj );
-    let withSubs = !!obj.subs.length;
+  /**
+   * Delete task in current tab by it's id
+   *
+   * @param {number} taskID
+   */
+  delete( taskID ) {
+    let tasks = TaskList.getCurrentTasks();
+    for ( let i = taskID; i < tasks.length - 1; ) tasks[ i ] = tasks[ ++i ];
+    tasks.length--;
+  },
 
-    let task = append( TaskList.taskContainer, create( `
+  /**
+   * Check if task may be set as completed
+   *
+   * @param {Object} taskData
+   * @returns {boolean}
+   */
+  manBeCompleted( taskData ) {
+    let may = true;
+    each( taskData.subs, el => may = may && el.completed );
+
+    return may
+  },
+
+  /**
+   * Get task status and class for status to highlight it
+   *
+   * @param {Object} task
+   * @returns {Object}
+   */
+  status( task ) {
+    return {
+      status: 'Скоро',
+      statusClass: '_text-muted',
+    };
+  },
+
+  /**
+   * Create task element which can be inserted to the page
+   *
+   * @param {Object} taskData
+   * @returns {ChildNode}
+   */
+  createElement( taskData ) {
+    return create( `
       <div class="task">
-        <div class="task__inner row _justify-evenly _align-center _py-2 _px-3 _rounded">
-          <input type="checkbox" class="popup__task-completed" ${Task.allSubsCompleted( obj ) ? '' : 'disabled'} ${obj.completed ? 'checked' : ''}>
-          <div class="task__title _text-bold _mx-2 _grow">${obj.title}</div>
-          <div class="_text-semi-bold ${statusClass}">${status}</div>
+        <div class="task__inner row _justify-evenly _align-center _py-2 _px-3">
+          <input type="checkbox" class="popup__task-completed"
+            ${Task.manBeCompleted( taskData ) ? '' : 'disabled'}
+            ${taskData.completed ? 'checked' : ''}>
+          <div class="task__body sm:col lg:row _justify-between _grow _ml-2">
+            <div class="task__title _text-semi-bold _grow">${taskData.title}</div>
+            <div class="sm:_mt-1 lg:_ml-2 _text-semi-bold ${taskData.statusClass}">${taskData.status}</div>
+          </div>
         </div>
-        ${withSubs ? `<div class="task__subs-container _mt-1 _py-3 _pl-1"></div>` : ''}
+        ${taskData.hasSubs ? `<div class="task__subs-container _mt-1 _py-3 _pl-1"></div>` : ''}
       </div>
-    `) )
+    `);
+  },
 
-    let subContainer = sel( '.task__subs-container', task )[ 0 ];
-    obj.subs.forEach( ( sub, subID ) => {
-      let subCheckbox = sel( '.popup__sub-completed', append( subContainer, create( `
-        <div class="task__sub row _justify-evenly _align-center _py-2 _px-3 _rounded">
-          <input type="checkbox" class="popup__sub-completed" ${sub.completed ? 'checked' : ''}>
-          <div class="_text-bold _mx-2 _grow">${sub.title}</div>
-        </div>
-      `) ) )[ 0 ];
-      subCheckbox.parentID = id;
-      subCheckbox.subID = subID;
+  /**
+   * Create task's sub element which can be inserted to the task element
+   *
+   * @param {Object} subData
+   * @returns {ChildNode}
+   */
+  createSubElement( subData ) {
+    return create( `
+      <div class="task__sub row _justify-evenly _align-center _py-2 _px-3">
+        <input type="checkbox" class="popup__sub-completed" ${subData.checked}>
+        <div class="_mx _grow">${subData.title}</div>
+      </div>
+    `);
+  },
+
+  /**
+   * Render task to the page from taskData
+   *
+   * @param {Object} taskData
+   * @param {number} taskID
+   * @returns {void}
+   */
+  render( taskData, taskID ) {
+    taskData.hasSubs = !!taskData.subs.length;
+    Object.assign( taskData, Task.status( taskData ) );
+    let taskElement = Task.createElement( taskData );
+
+    select( '.popup__task-completed', taskElement )[ 0 ].taskID = taskID;
+    let taskBody = select( '.task__body', taskElement )[ 0 ];
+    taskBody.taskID = taskID;
+    taskBody.addEventListener( 'click', Task.editHandler );
+
+    let subContainer = select( '.task__subs-container', taskElement )[ 0 ];
+    each( taskData.subs, ( subData, subID ) => {
+      let checkbox = select( '.popup__sub-completed', append( subContainer, Task.createSubElement( subData ) ) )[ 0 ];
+      checkbox.parentID = taskID;
+      checkbox.taskID = subID;
     } );
 
-    sel( '.popup__task-completed', task )[ 0 ].taskID = id;
-
-    task.addEventListener( 'click', function ( evt ) {
-      if ( evt.target.matches( '.popup__task-completed' ) || evt.target.matches( '.popup__sub-completed' ) ) Task.changeCompletedState( evt.target );
-      else if ( evt.target.matches( '.task__inner' ) || evt.target.matches( '.task__title' ) ) Task.edit( id );
-    } );
+    TaskList.container.append( taskElement );
   },
 
 };
