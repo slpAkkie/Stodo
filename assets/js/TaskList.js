@@ -73,7 +73,7 @@ let TaskList = {
     let unfiltered = TaskList.getCurrentTasks(),
       filtered = [];
 
-    each( unfiltered, task => ( matched = Task.matchFilter( task, filter ) ) && filtered.push( matched ) );
+    each( unfiltered, ( task, taskID ) => ( matched = Task.matchFilter( task, filter, taskID ) ) && filtered.push( matched ) );
 
     return filtered;
   },

@@ -276,9 +276,11 @@ const Task = {
    * @param {Array} filter
    * @returns {Object|boolean}
    */
-  matchFilter( taskData, filters ) {
+  matchFilter( taskData, filters, taskID ) {
     let foundFilters = 0,
       task = Task.clone( taskData );
+
+    task.id = taskID;
 
     each( filters, filter => {
       let found = false;
@@ -308,6 +310,7 @@ const Task = {
    * @returns {void}
    */
   render( taskData, taskID ) {
+    taskID = taskData.id || taskID;
     taskData.hasSubs = !!taskData.subs.length;
     Object.assign( taskData, Task.status( taskData ) );
     let taskElement = Task.createElement( taskData );
