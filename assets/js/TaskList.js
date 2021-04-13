@@ -10,7 +10,16 @@ let TaskList = {
     [], // 1: Completed
   ],
 
+  /**
+   * Tasks from active tab
+   *
+   * @var {Array} */
   get active() { return TaskList.tabs[ 0 ] },
+
+  /**
+   * Tasks from completed tab
+   *
+   * @var {Array} */
   get completed() { return TaskList.tabs[ 1 ] },
 
 
@@ -57,10 +66,17 @@ let TaskList = {
   /**
    * Filter tasks from current tab
    *
-   * @param {string} filter
+   * @param {Array} filter
    * @returns {Array}
    */
-  getTasksByFilter( filter ) { return [] },
+  getTasksByFilter( filter ) {
+    let unfiltered = TaskList.getCurrentTasks(),
+      filtered = [];
+
+    each( unfiltered, task => ( matched = Task.matchFilter( task, filter ) ) && filtered.push( matched ) );
+
+    return filtered;
+  },
 
   /**
    * Push task to active tab
@@ -77,6 +93,18 @@ let TaskList = {
    * @returns {void}
    */
   pushCompleted( task ) { TaskList.tabs[ 1 ].unshift( task ) },
+
+
+
+  /**
+   * Save filter and rerander tasks
+   *
+   * @returns {void}
+   */
+  filterHandler() {
+    window.state.filter = this.value ? this.value.split( ' ' ).filter( f => ( f ) ) : '';
+    render();
+  },
 
 
 

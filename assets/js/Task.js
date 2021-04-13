@@ -250,6 +250,57 @@ const Task = {
   },
 
   /**
+   * Get the same task object but with different reference
+   *
+   * @param {Object} taskData
+   * @returns {Object}
+   */
+  clone( taskData ) {
+    let task = new Object();
+    Object.assign( task, taskData );
+
+    task.subs = [];
+    each( taskData.subs, subData => {
+      let sub = new Object();
+      Object.assign( sub, subData );
+      task.subs.push( sub );
+    } );
+
+    return task
+  },
+
+  /**
+   * Check if task match the filter and highlight entries
+   *
+   * @param {Object} task
+   * @param {Array} filter
+   * @returns {Object|boolean}
+   */
+  matchFilter( taskData, filters ) {
+    let foundFilters = 0,
+      task = Task.clone( taskData );
+
+    each( filters, filter => {
+      let found = false;
+      let regexp = new RegExp( `(${filter})`, 'gi' );
+
+      found = found || ( task.title.match( regexp ) && !!( task.title = task.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) ) );
+      found = found || ( Task.status( task ).status.match( regexp ) );
+      if ( task.until.date ) {
+        let untilDate = date( task.until.date ).toLocaleDateString();
+        found = found || ( untilDate.match( regexp ) );
+        task.until.time && ( found = found || ( task.until.time.match( regexp ) ) );
+      }
+
+      each( task.subs, sub => found = found || ( sub.title.match( regexp ) && !!( sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) ) ) );
+
+      if ( found ) foundFilters++;
+    } );
+
+    return foundFilters === filters.length ? task : false
+  },
+
+  /**
    * Render task to the page from taskData
    *
    * @param {Object} taskData
