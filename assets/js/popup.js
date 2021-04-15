@@ -114,7 +114,6 @@ class Popup {
 
   /**
    * Remove sub task
-   * TODO: If subs is exist yet but all completed
    *
    * @returns {void}
    */

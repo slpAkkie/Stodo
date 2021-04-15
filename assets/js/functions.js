@@ -136,7 +136,7 @@ function contains( source, values ) {
  * @param {string} time
  * @returns {Date}
  */
-function date( date, time = false ) { return new Date( `${date}${time ? `T${time}` : 'T23:59'}` ) }
+function date( date, time = '' ) { return new Date( `${date}${time ? `T${time}` : 'T23:59'}` ) }
 
 /**
  * Returns how much days in ms

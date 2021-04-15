@@ -272,8 +272,9 @@ class Task {
   /**
    * Check if task match the filter and highlight entries
    *
-   * @param {Object} task
-   * @param {Array} filter
+   * @param {Object} taskData
+   * @param {Array} filters
+   * @param {number} taskID
    * @returns {Object|boolean}
    */
   static matchFilter( taskData, filters, taskID ) {
@@ -294,7 +295,11 @@ class Task {
         task.until.time && ( found = found || ( task.until.time.match( regexp ) ) );
       }
 
-      each( task.subs, sub => found = found || ( sub.title.match( regexp ) && !!( sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) ) ) );
+      each( task.subs, sub => {
+        let foundInSub = !!sub.title.match( regexp );
+        if (foundInSub) sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' );
+        found = true;
+      } );
 
       if ( found ) foundFilters++;
     } );
