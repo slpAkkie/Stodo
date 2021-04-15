@@ -102,6 +102,7 @@ const Popup = {
 
   /**
    * Remove sub task
+   * TODO: If subs is exist yet but all completed
    *
    * @returns {void}
    */
@@ -172,7 +173,6 @@ const Popup = {
 
     if ( response.success ) return Popup.hide();
 
-    // TODO: Highlight wrong fields
     Popup.setErrors( response );
   },
 
