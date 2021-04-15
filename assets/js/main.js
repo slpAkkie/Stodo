@@ -31,6 +31,9 @@ window.addEventListener( 'DOMContentLoaded', function () {
   select( '#popup-sub-add' )[ 0 ].addEventListener( 'click', Popup.addSub );
   each( select( '.tab' ), tab => tab.addEventListener( 'click', switchTab ) );
 
+  Popup.delButton.addEventListener( 'click', Popup.deleteHandler );
+  Popup.saveButton.addEventListener( 'click', Popup.saveHandler );
+
 
 
   // First render

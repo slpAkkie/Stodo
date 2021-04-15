@@ -26,12 +26,18 @@ class Popup {
   /** @type {Element} */
   static #checkbox = select( '#popup-completed' )[ 0 ];
 
+  /** @type {Element} */
+  static delButton = select( '#popup-delete' )[0];
+
+  /** @type {Element} */
+  static saveButton = select( '#popup-save' )[0];
+
   /**
    * Get root popup element
    *
    * @var {Element}
    */
-  static root = select( '.popup' )[ 0 ];
+  static #root = select( '.popup' )[ 0 ];
 
   /** @var {string} */
   static get title() { return Popup.#title.value }
@@ -79,7 +85,7 @@ class Popup {
    * Create sub task
    *
    * @param {Object|null} subData
-   * @returns {Element}
+   * @returns {ChildNode}
    */
   static createSub( subData = null ) {
     subData = subData ?? { title: '', completed: false };
@@ -118,10 +124,10 @@ class Popup {
    * @returns {void}
    */
   static removeSub() {
-    parent( this ).remove();
+    getParent( this ).remove();
     let popupSubs = Popup.subs;
     if ( !popupSubs.length || popupSubs.filter( popupSub => ( popupSub.completed ) ).length === popupSubs.length )
-      select( '#popup-completed' )[ 0 ].disabled = false;
+      Popup.#checkbox.disabled = false;
   }
 
   /**
@@ -132,36 +138,11 @@ class Popup {
   static changeSubState() {
     if ( !Task.mayBeCompleted( { subs: Popup.subs } ) ) {
       Popup.completed = false;
-      select( '#popup-completed' )[ 0 ].disabled = true;
+      Popup.#checkbox.disabled = true;
     } else {
-      select( '#popup-completed' )[ 0 ].disabled = false;
+      Popup.#checkbox.disabled = false;
     }
   }
-
-  /**
-   * Render button to the controls container
-   *
-   * @param {ChildNode} button
-   * @returns {ChildNode}
-   */
-  static renderButton( button ) {
-    select( '#js-popup-controls' )[ 0 ].append( button );
-    return button
-  }
-
-  /**
-   * Render delete button
-   *
-   * @returns {ChildNode}
-   */
-  static renderDeleteButton() { return Popup.renderButton( create( `<div class="button button_danger sm:_text-center sm:_mt-1 lg:_ml-2" id="popup-delete">Удалить</div>` ) ) }
-
-  /**
-   * Render save button
-   *
-   * @returns {ChildNode}
-   */
-  static renderSaveButton() { return Popup.renderButton( create( `<div class="button button_success sm:_text-center sm:_mt-1 lg:_ml-2" id="popup-save">Сохранить</div>` ) ) }
 
   /**
    * Handle request to delete task
@@ -196,9 +177,8 @@ class Popup {
    * @returns {void}
    */
   static show( mode = 'new' ) {
-    if ( ( Popup.mode = mode ) === 'edit' ) Popup.renderDeleteButton().addEventListener( 'click', Popup.deleteHandler );
-    Popup.renderSaveButton().addEventListener( 'click', Popup.saveHandler );
-    addClass( Popup.root, 'popup_shown' );
+    Popup.delButton.hidden = (Popup.mode = mode) !== 'edit';
+    addClass( Popup.#root, 'popup_shown' );
   }
 
   /**
@@ -209,7 +189,7 @@ class Popup {
   static hide() {
     Popup.mode = 'hidden';
     Popup.taskID = null;
-    removeClass( Popup.root, 'popup_shown' );
+    removeClass( Popup.#root, 'popup_shown' );
     Popup.clear();
   }
 
@@ -237,8 +217,8 @@ class Popup {
     Popup.date = null;
     Popup.time = null;
     Popup.completed = false;
+    Popup.#checkbox.disabled = false;
     Popup.subs = [];
-    select( '#js-popup-controls' )[ 0 ].innerHTML = null;
     Popup.resetErrors();
   }
 
@@ -249,11 +229,11 @@ class Popup {
    */
   static setErrors( errors ) {
     Popup.resetErrors();
-    if ( errors.title ) addClass( select( '#popup-title' )[ 0 ], 'input_wrong' );
-    if ( errors.date ) addClass( select( '#popup-date' )[ 0 ], 'input_wrong' );
-    if ( errors.time ) addClass( select( '#popup-time' )[ 0 ], 'input_wrong' );
+    if ( errors.title ) addClass( Popup.#title, 'input_wrong' );
+    if ( errors.date ) addClass( Popup.#date, 'input_wrong' );
+    if ( errors.time ) addClass( Popup.#time, 'input_wrong' );
     if ( errors.subs ) {
-      let subElements = select( '.popup__sub-title', Popup.root );
+      let subElements = select( '.popup__sub-title', Popup.#root );
       each( errors.subs, id => addClass( subElements[ id ], 'input_wrong' ) );
     }
   }
@@ -263,7 +243,7 @@ class Popup {
    *
    * @returns {void}
    */
-  static resetErrors() { each( select( '.input_wrong', Popup.root ), input => removeClass( input, 'input_wrong' ) ) }
+  static resetErrors() { each( select( '.input_wrong', Popup.#root ), input => removeClass( input, 'input_wrong' ) ) }
 
   /**
    * Fill popup fields with task data
