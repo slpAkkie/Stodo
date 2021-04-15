@@ -1,18 +1,18 @@
-const Task = {
+class Task {
 
   /**
    * Handle click on task element
    *
    * @returns {void}
    */
-  editHandler() { Task.edit( this.taskID ) },
+  static editHandler() { Task.edit( this.taskID ) }
 
   /**
    * Open popup window in new mode
    *
    * @returns {void}
    */
-  create() { Popup.show() },
+  static create() { Popup.show() }
 
   /**
    * Opens popup window in edit mode and fill it with task data
@@ -20,11 +20,11 @@ const Task = {
    * @param {number} taskID
    * @returns {void}
    */
-  edit( taskID ) {
+  static edit( taskID ) {
     Popup.taskID = taskID;
     Popup.show( 'edit' );
     Popup.fillWith( TaskList.getTask( taskID ) );
-  },
+  }
 
   /**
    * Update an exiting task by it's id
@@ -33,7 +33,7 @@ const Task = {
    * @param {Object} taskData
    * @returns {boolean|Array} True if task was updated successfuly or Array with wrong fields
    */
-  update( taskID, taskData ) {
+  static update( taskID, taskData ) {
     let errors = Task.check( taskData );
 
     let oldData = TaskList.getTask( taskID );
@@ -47,9 +47,9 @@ const Task = {
     }
 
     let oldState = oldData.completed;
-    TaskList.tabs[ window.state.activeTabID ][ taskID ] = taskData;
+    TaskList.tabs[ state.activeTabID ][ taskID ] = taskData;
 
-    if ( oldState !== TaskList.tabs[ window.state.activeTabID ][ taskID ].completed ) {
+    if ( oldState !== TaskList.tabs[ state.activeTabID ][ taskID ].completed ) {
       if ( taskData.completed ) Task.moveToCompleted( taskID );
       else Task.moveToActive( taskID );
     }
@@ -58,7 +58,7 @@ const Task = {
     render();
 
     return { success: true }
-  },
+  }
 
   /**
    * Save new task
@@ -66,7 +66,7 @@ const Task = {
    * @param {number} taskData
    * @returns {boolean|Array} True if task was save successfuly or Array with wrong fields
    */
-  save( taskData ) {
+  static save( taskData ) {
     let errors = Task.check( taskData );
     if ( errors ) return errors;
 
@@ -77,20 +77,20 @@ const Task = {
     render();
 
     return { success: true }
-  },
+  }
 
   /**
    * Delete task in current tab by it's id
    *
    * @param {number} taskID
    */
-  delete( taskID, tab = null ) {
+  static delete( taskID, tab = null ) {
     let tasks = tab || TaskList.getCurrentTasks();;
     for ( let i = taskID; i < tasks.length - 1; i++ ) tasks[ i ] = tasks[ i + 1 ];
     tasks.length--;
 
     TaskList.save();
-  },
+  }
 
   /**
    * Check task fields and return array of errors or false if there is no errors
@@ -98,7 +98,7 @@ const Task = {
    * @param {Object} taskData
    * @returns {Object|boolean}
    */
-  check( taskData ) {
+  static check( taskData ) {
     let errors = {}, errorsCount = 0;
 
     if ( !taskData.title ) { errors.title = true; errorsCount++; }
@@ -120,7 +120,7 @@ const Task = {
     } );
 
     return errorsCount ? errors : false;
-  },
+  }
 
   /**
    * Check if task may be set as completed
@@ -128,12 +128,12 @@ const Task = {
    * @param {Object} taskData
    * @returns {boolean}
    */
-  mayBeCompleted( taskData ) {
+  static mayBeCompleted( taskData ) {
     let may = true;
     each( taskData.subs, el => may = may && el.completed );
 
     return may
-  },
+  }
 
   /**
    * Get task status and class for status to highlight it
@@ -141,7 +141,7 @@ const Task = {
    * @param {Object} taskData
    * @returns {Object}
    */
-  status( taskData ) {
+  static status( taskData ) {
     let statusData = { status: '', statusClass: '_text-muted' };
 
     if ( !taskData.until.date ) return statusData;
@@ -164,17 +164,17 @@ const Task = {
     else statusData.status = `Через ${Math.floor( dayDiff )} дней`;
 
     return statusData;
-  },
+  }
 
-  moveToCompleted( taskID ) {
+  static moveToCompleted( taskID ) {
     TaskList.pushCompleted( TaskList.getTask( taskID ) );
     Task.delete( taskID, TaskList.getCurrentTasks() );
-  },
+  }
 
-  moveToActive( taskID ) {
+  static moveToActive( taskID ) {
     TaskList.pushActive( TaskList.getTask( taskID ) );
     Task.delete( taskID, TaskList.getCurrentTasks() );
-  },
+  }
 
   /**
    * Create task element which can be inserted to the page
@@ -182,7 +182,7 @@ const Task = {
    * @param {Object} taskData
    * @returns {ChildNode}
    */
-  createElement( taskData ) {
+  static createElement( taskData ) {
     return create( `
       <div class="task">
         <div class="task__inner row _justify-evenly _align-center _py-2 _px-3">
@@ -197,7 +197,7 @@ const Task = {
         ${taskData.hasSubs ? `<div class="task__subs-container _mt-1 _py-3 _pl-1"></div>` : ''}
       </div>
     `);
-  },
+  }
 
   /**
    * Create task's sub element which can be inserted to the task element
@@ -205,21 +205,21 @@ const Task = {
    * @param {Object} subData
    * @returns {ChildNode}
    */
-  createSubElement( subData ) {
+  static createSubElement( subData ) {
     return create( `
       <div class="task__sub row _justify-evenly _align-center _py-2 _px-3">
         <input type="checkbox" class="popup__sub-completed" ${subData.completed ? 'checked' : ''}>
         <div class="_mx _grow">${subData.title}</div>
       </div>
     `);
-  },
+  }
 
   /**
    * Change sub's completed state
    *
    * @returns {void}
    */
-  changeSubState() {
+  static changeSubState() {
     let parentTask = TaskList.getTask( this.parentID );
     let sub = parentTask.subs[ this.taskID ];
     sub.completed = this.checked;
@@ -231,14 +231,14 @@ const Task = {
 
     TaskList.save();
     render();
-  },
+  }
 
   /**
    * Change task's completed state
    *
    * @returns {void}
    */
-  changeState() {
+  static changeState() {
     let task = TaskList.getTask( this.taskID );
     task.completed = this.checked;
 
@@ -247,7 +247,7 @@ const Task = {
 
     TaskList.save();
     render();
-  },
+  }
 
   /**
    * Get the same task object but with different reference
@@ -255,7 +255,7 @@ const Task = {
    * @param {Object} taskData
    * @returns {Object}
    */
-  clone( taskData ) {
+  static clone( taskData ) {
     let task = new Object();
     Object.assign( task, taskData );
 
@@ -267,7 +267,7 @@ const Task = {
     } );
 
     return task
-  },
+  }
 
   /**
    * Check if task match the filter and highlight entries
@@ -276,7 +276,7 @@ const Task = {
    * @param {Array} filter
    * @returns {Object|boolean}
    */
-  matchFilter( taskData, filters, taskID ) {
+  static matchFilter( taskData, filters, taskID ) {
     let foundFilters = 0,
       task = Task.clone( taskData );
 
@@ -300,7 +300,7 @@ const Task = {
     } );
 
     return foundFilters === filters.length ? task : false
-  },
+  }
 
   /**
    * Render task to the page from taskData
@@ -309,7 +309,7 @@ const Task = {
    * @param {number} taskID
    * @returns {void}
    */
-  render( taskData, taskID ) {
+  static render( taskData, taskID ) {
     taskID = taskData.id || taskID;
     taskData.hasSubs = !!taskData.subs.length;
     Object.assign( taskData, Task.status( taskData ) );
@@ -333,6 +333,6 @@ const Task = {
     } );
 
     TaskList.container.append( taskElement );
-  },
+  }
 
-};
+}

@@ -1,26 +1,26 @@
-let TaskList = {
+class TaskList {
 
   /**
    * Tabs
    *
    * @var {Array}
    */
-  tabs: [
+  static tabs = [
     [], // 0: Active
     [], // 1: Completed
-  ],
+  ]
 
   /**
    * Tasks from active tab
    *
    * @var {Array} */
-  get active() { return TaskList.tabs[ 0 ] },
+  static get active() { return TaskList.tabs[ 0 ] }
 
   /**
    * Tasks from completed tab
    *
    * @var {Array} */
-  get completed() { return TaskList.tabs[ 1 ] },
+  static get completed() { return TaskList.tabs[ 1 ] }
 
 
 
@@ -36,14 +36,14 @@ let TaskList = {
    *
    * @var {Element}
    */
-  get container() { return select( '.tasks-container' )[ 0 ] },
+  static get container() { return select( '.tasks-container' )[ 0 ] }
 
   /**
    * Clear container from tasks
    *
    * @returns {void}
    */
-  clearContainer() { TaskList.container.innerHTML = null },
+  static clearContainer() { TaskList.container.innerHTML = null }
 
 
 
@@ -54,14 +54,14 @@ let TaskList = {
    * @param {Array|null} tab
    * @returns [Array]
    */
-  getTask( taskID, tab = null ) { return ( !tab && ( tab = TaskList.getCurrentTasks() ) ) && tab[ taskID ] },
+  static getTask( taskID, tab = null ) { return ( !tab && ( tab = TaskList.getCurrentTasks() ) ) && tab[ taskID ] }
 
   /**
    * Get tasks for current tab
    *
    * @returns {Array}
    */
-  getCurrentTasks() { return TaskList.tabs[ window.state.activeTabID ] },
+  static getCurrentTasks() { return TaskList.tabs[ state.activeTabID ] }
 
   /**
    * Filter tasks from current tab
@@ -69,14 +69,14 @@ let TaskList = {
    * @param {Array} filter
    * @returns {Array}
    */
-  getTasksByFilter( filter ) {
+  static getTasksByFilter( filter ) {
     let unfiltered = TaskList.getCurrentTasks(),
       filtered = [];
 
     each( unfiltered, ( task, taskID ) => ( matched = Task.matchFilter( task, filter, taskID ) ) && filtered.push( matched ) );
 
     return filtered;
-  },
+  }
 
   /**
    * Push task to active tab
@@ -84,7 +84,7 @@ let TaskList = {
    * @param {Object} task
    * @returns {void}
    */
-  pushActive( task ) { TaskList.tabs[ 0 ].push( task ) },
+  static pushActive( task ) { TaskList.tabs[ 0 ].push( task ) }
 
   /**
    * Push task to completed tab
@@ -92,7 +92,7 @@ let TaskList = {
    * @param {Object} task
    * @returns {void}
    */
-  pushCompleted( task ) { TaskList.tabs[ 1 ].unshift( task ) },
+  static pushCompleted( task ) { TaskList.tabs[ 1 ].unshift( task ) }
 
 
 
@@ -101,10 +101,10 @@ let TaskList = {
    *
    * @returns {void}
    */
-  filterHandler() {
-    window.state.filter = this.value ? this.value.split( ' ' ).filter( f => ( f ) ) : '';
+  static filterHandler() {
+    state.filter = this.value ? this.value.split( ' ' ).filter( f => ( f ) ) : '';
     render();
-  },
+  }
 
 
 
@@ -115,16 +115,16 @@ let TaskList = {
    *
    * @param {Array} tabs
    */
-  load( tabs ) { TaskList.tabs = tabs },
+  static load( tabs ) { TaskList.tabs = tabs }
 
   /**
    * Save tabs to the localStorage
    *
    * @returns {void}
    */
-  save() {
+  static save() {
     storage.save( 'tabs', TaskList.tabs );
     render();
-  },
+  }
 
-};
+}
