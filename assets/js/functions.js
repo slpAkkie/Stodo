@@ -37,14 +37,14 @@ function removeClass( el, className ) {
 /**
  * Get the element parent
  *
- * @param {Element|Node} child The element to get th eparent for
+ * @param {Element|Node} child The element to get the parent for
  * @param {string} selector Selector of parent to find
  * @returns {Element|Node|null}
  */
-function parent( child, selector = '*' ) {
+function getParent( child, selector = '*' ) {
   if ( !child || !( parentElement = child.parentElement ) ) return null
   if ( parentElement.matches( selector ) ) return parentElement
-  else return parent( parentElement, selector )
+  else return getParent( parentElement, selector )
 }
 
 /**
