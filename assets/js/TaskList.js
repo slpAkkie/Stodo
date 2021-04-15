@@ -52,7 +52,7 @@ class TaskList {
    *
    * @param {number} taskID
    * @param {Array|null} tab
-   * @returns [Array]
+   * @returns [Object[]]
    */
   static getTask( taskID, tab = null ) { return ( !tab && ( tab = TaskList.getCurrentTasks() ) ) && tab[ taskID ] }
 
@@ -73,7 +73,10 @@ class TaskList {
     let unfiltered = TaskList.getCurrentTasks(),
       filtered = [];
 
-    each( unfiltered, ( task, taskID ) => ( matched = Task.matchFilter( task, filter, taskID ) ) && filtered.push( matched ) );
+    each( unfiltered, ( task, taskID ) => {
+      let matched = Task.matchFilter( task, filter, taskID );
+      return matched && filtered.push( matched )
+    } );
 
     return filtered;
   }

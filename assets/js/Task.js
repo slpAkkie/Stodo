@@ -31,7 +31,7 @@ class Task {
    *
    * @param {number} taskID
    * @param {Object} taskData
-   * @returns {boolean|Array} True if task was updated successfuly or Array with wrong fields
+   * @returns {boolean|Object} True if task was updated successfully or Array with wrong fields
    */
   static update( taskID, taskData ) {
     let errors = Task.check( taskData );
@@ -63,8 +63,8 @@ class Task {
   /**
    * Save new task
    *
-   * @param {number} taskData
-   * @returns {boolean|Array} True if task was save successfuly or Array with wrong fields
+   * @param {Object} taskData
+   * @returns {boolean|Array} True if task was save successfully or Array with wrong fields
    */
   static save( taskData ) {
     let errors = Task.check( taskData );

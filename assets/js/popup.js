@@ -14,28 +14,40 @@ class Popup {
    */
   static taskID = null;
 
+  /** @type {Element} */
+  static #title = select( '#popup-title' )[ 0 ];
+
+  /** @type {Element} */
+  static #date = select( '#popup-date' )[ 0 ];
+
+  /** @type {Element} */
+  static #time = select( '#popup-time' )[ 0 ];
+
+  /** @type {Element} */
+  static #checkbox = select( '#popup-completed' )[ 0 ];
+
   /**
    * Get root popup element
    *
    * @var {Element}
    */
-  static get root() { return select( '.popup' )[ 0 ] }
+  static root = select( '.popup' )[ 0 ];
 
   /** @var {string} */
-  static get title() { return select( '#popup-title' )[ 0 ].value }
-  static set title( value ) { select( '#popup-title' )[ 0 ].value = value }
+  static get title() { return Popup.#title.value }
+  static set title( value ) { Popup.#title.value = value }
 
   /** @var {string} */
-  static get date() { return select( '#popup-date' )[ 0 ].value || null }
-  static set date( value ) { select( '#popup-date' )[ 0 ].value = value }
+  static get date() { return Popup.#date.value || null }
+  static set date( value ) { Popup.#date.value = value }
 
   /** @var {string} */
-  static get time() { return select( '#popup-time' )[ 0 ].value || null }
-  static set time( value ) { select( '#popup-time' )[ 0 ].value = value }
+  static get time() { return Popup.#time.value || null }
+  static set time( value ) { Popup.#time.value = value }
 
   /** @var {string} */
-  static get completed() { return select( '#popup-completed' )[ 0 ].checked }
-  static set completed( value ) { select( '#popup-completed' )[ 0 ].checked = value }
+  static get completed() { return Popup.#checkbox.checked }
+  static set completed( value ) { Popup.#checkbox.checked = value }
 
   /** @var {string} */
   static get subs() {
@@ -130,8 +142,8 @@ class Popup {
   /**
    * Render button to the controls container
    *
-   * @param {Element} button
-   * @returns {Element}
+   * @param {ChildNode} button
+   * @returns {ChildNode}
    */
   static renderButton( button ) {
     select( '#js-popup-controls' )[ 0 ].append( button );
@@ -141,14 +153,14 @@ class Popup {
   /**
    * Render delete button
    *
-   * @returns {Element}
+   * @returns {ChildNode}
    */
   static renderDeleteButton() { return Popup.renderButton( create( `<div class="button button_danger sm:_text-center sm:_mt-1 lg:_ml-2" id="popup-delete">Удалить</div>` ) ) }
 
   /**
    * Render save button
    *
-   * @returns {Element}
+   * @returns {ChildNode}
    */
   static renderSaveButton() { return Popup.renderButton( create( `<div class="button button_success sm:_text-center sm:_mt-1 lg:_ml-2" id="popup-save">Сохранить</div>` ) ) }
 
@@ -232,7 +244,7 @@ class Popup {
   }
 
   /**
-   * Highlighy wrong fields
+   * Highlight wrong fields
    *
    * @param {Array} errors
    */
