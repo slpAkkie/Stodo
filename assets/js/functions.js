@@ -200,7 +200,7 @@ const storage = {
  *
  * @returns {void}
  */
-function checkStoreVersion() {
+function checkStorageVersion() {
   if ( ( version = storage.get( 'version', '' ) ) !== '0.2' ) {
     storage.clear();
     storage.save( 'version', '0.2' );

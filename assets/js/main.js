@@ -20,7 +20,7 @@ window.state = {
 /** Initialize */
 window.addEventListener( 'DOMContentLoaded', function () {
 
-  checkStoreVersion();
+  checkStorageVersion();
 
   // Load tabs from storage or save empty data
   ( tabs = storage.get( 'tabs' ) ) ? TaskList.load( tabs ) : TaskList.save();
