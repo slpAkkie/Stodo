@@ -225,7 +225,7 @@ function switchTab() {
   removeClass( select( `.tab_active` )[ 0 ], 'tab_active' );
   addClass( this, 'tab_active' );
 
-  window.state.activeTabID = +this.getAttribute( 'data-id' );
+  state.activeTabID = +this.getAttribute( 'data-id' );
 
   render();
 }
@@ -238,10 +238,9 @@ function switchTab() {
 function render() {
   TaskList.clearContainer();
 
-  let tasks,
-    filter = window.state.filter;
+  let tasks;
 
-  if ( filter.length ) tasks = TaskList.getTasksByFilter( filter );
+  if ( state.filter.length ) tasks = TaskList.getTasksByFilter( state.filter );
   else tasks = TaskList.getCurrentTasks();
 
   if ( tasks.length ) each( tasks, ( task, id ) => Task.render( task, id ) );

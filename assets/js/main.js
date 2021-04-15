@@ -1,6 +1,6 @@
 /** App state */
 
-window.state = {
+let state = {
 
   activeTabID: 0,
 
