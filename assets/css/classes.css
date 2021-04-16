@@ -39,6 +39,7 @@
 .button {
   color: var(--color, inherit);
   font-variation-settings: 'wght' 555;
+  background-color: var(--color-light);
   border-color: var(--color, var(--color-neutral));
   cursor: pointer;
 }
@@ -65,6 +66,31 @@
 
 .label { width: 100% }
 .label-text { font-variation-settings: 'wght' 545 }
+
+label.checkbox {
+  --size: 15px;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  border: 1px solid var(--color-neutral);
+  border-radius: .25em;
+  cursor: pointer;
+}
+
+label.checkbox_checked {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+}
+
+label.checkbox_checked::after {
+  content: '✔';
+  color: white;
+  position: absolute;
+  top: -2px;
+  left: 0;
+  font-size: 1.25em;
+  line-height: 1;
+}
 
 
 

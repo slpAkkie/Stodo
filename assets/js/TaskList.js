@@ -100,7 +100,7 @@ class TaskList {
 
 
   /**
-   * Save filter and rerander tasks
+   * Save filter and rerender tasks
    *
    * @returns {void}
    */

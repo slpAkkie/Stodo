@@ -1,6 +1,7 @@
 :root {
 
   --color-accent: rgb(57 106 214);
+  --color-accent-op-1: rgb(57 106 214 / 50%);
   --color-dark: rgb(104 109 118);
   --color-darker: rgb(55 58 64);
   --color-light: rgb(238 238 238);

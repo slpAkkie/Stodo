@@ -23,7 +23,8 @@ window.addEventListener( 'DOMContentLoaded', function () {
   checkStorageVersion();
 
   // Load tabs from storage or save empty data
-  ( tabs = storage.get( 'tabs' ) ) ? TaskList.load( tabs ) : TaskList.save();
+  let tabs = storage.get( 'tabs' );
+  tabs ? TaskList.load( tabs ) : TaskList.save();
 
   select( '#filter-query' )[ 0 ].addEventListener( 'input', TaskList.filterHandler );
   select( '#task-new' )[ 0 ].addEventListener( 'click', Task.create );

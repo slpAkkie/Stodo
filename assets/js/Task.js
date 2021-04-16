@@ -64,7 +64,7 @@ class Task {
    * Save new task
    *
    * @param {Object} taskData
-   * @returns {boolean|Array} True if task was save successfully or Array with wrong fields
+   * @returns {boolean|Object} True if task was save successfully or Array with wrong fields
    */
   static save( taskData ) {
     let errors = Task.check( taskData );
@@ -83,9 +83,10 @@ class Task {
    * Delete task in current tab by it's id
    *
    * @param {number} taskID
+   * @param {Object[]|null} tab
    */
   static delete( taskID, tab = null ) {
-    let tasks = tab || TaskList.getCurrentTasks();;
+    let tasks = tab || TaskList.getCurrentTasks();
     for ( let i = taskID; i < tasks.length - 1; i++ ) tasks[ i ] = tasks[ i + 1 ];
     tasks.length--;
 
@@ -186,9 +187,11 @@ class Task {
     return create( `
       <div class="task">
         <div class="task__inner row _justify-evenly _align-center _py-2 _px-3">
-          <input type="checkbox" class="task__completed"
-            ${Task.mayBeCompleted( taskData ) ? '' : 'disabled'}
-            ${taskData.completed ? 'checked' : ''}>
+          <label class="checkbox ${taskData.completed ? 'checkbox_checked' : ''}">
+            <input type="checkbox" class="task__completed" hidden
+              ${Task.mayBeCompleted( taskData ) ? '' : 'disabled'}
+              ${taskData.completed ? 'checked' : ''}>
+          </label>
           <div class="task__body sm:col lg:row _justify-between _grow _ml-2">
             <div class="task__title _text-semi-bold _grow">${taskData.title}</div>
             <div class="sm:_mt-1 lg:_ml-2 _text-semi-bold ${taskData.statusClass}">${taskData.status}</div>
@@ -208,8 +211,10 @@ class Task {
   static createSubElement( subData ) {
     return create( `
       <div class="task__sub row _justify-evenly _align-center _py-2 _px-3">
-        <input type="checkbox" class="popup__sub-completed" ${subData.completed ? 'checked' : ''}>
-        <div class="_mx _grow">${subData.title}</div>
+        <label class="checkbox ${subData.completed ? 'checkbox_checked' : ''}">
+          <input type="checkbox" class="popup__sub-completed" hidden ${subData.completed ? 'checked' : ''}>
+        </label>
+        <div class="_mx-2 _grow">${subData.title}</div>
       </div>
     `);
   }
@@ -256,12 +261,12 @@ class Task {
    * @returns {Object}
    */
   static clone( taskData ) {
-    let task = new Object();
+    let task = {};
     Object.assign( task, taskData );
 
     task.subs = [];
     each( taskData.subs, subData => {
-      let sub = new Object();
+      let sub = {};
       Object.assign( sub, subData );
       task.subs.push( sub );
     } );
@@ -320,13 +325,12 @@ class Task {
     Object.assign( taskData, Task.status( taskData ) );
     let taskElement = Task.createElement( taskData );
 
-    let taskCheckbox = select( '.task__completed', taskElement )[ 0 ];
-    taskCheckbox.taskID = taskID;
-    taskCheckbox.addEventListener( 'click', Task.changeState );
+    select( '.task__completed', taskElement )[ 0 ].taskID = taskID;
+    select( '.checkbox', taskElement )[ 0 ].addEventListener( 'click', function () { Task.changeState.call( select('.task__completed', this )[0] ) } );
     let taskInner = select( '.task__inner', taskElement )[ 0 ];
     taskInner.taskID = taskID;
     taskInner.addEventListener( 'click', function ( evt ) {
-      if ( !evt.target.matches( '.task__completed' ) ) Task.editHandler.call( this )
+      if ( !evt.target.matches( '.checkbox' ) && !evt.target.matches( '.task__completed' ) ) Task.editHandler.call( this )
     } );
 
     let subContainer = select( '.task__subs-container', taskElement )[ 0 ];

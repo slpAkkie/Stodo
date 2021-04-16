@@ -42,9 +42,10 @@ function removeClass( el, className ) {
  * @returns {Element|Node|null}
  */
 function getParent( child, selector = '*' ) {
-  if ( !child || !( parentElement = child.parentElement ) ) return null
-  if ( parentElement.matches( selector ) ) return parentElement
-  else return getParent( parentElement, selector )
+  let parentElement = child.parentElement;
+  if ( !child || !parentElement ) return null;
+  if ( parentElement.matches( selector ) ) return parentElement;
+  else return getParent( parentElement, selector );
 }
 
 /**
@@ -66,8 +67,8 @@ function create( markup ) {
  * @param {Element|Node} child The element to be inserted
  * @returns {Element|Node} Inserted element
  */
-function insertTop( node, child ) {
-  node.insertBefore( child, node.firstChild );
+function prepend( node, child ) {
+  node.prepend(child);
   return child
 }
 
@@ -136,7 +137,7 @@ function contains( source, values ) {
  * @param {string} time
  * @returns {Date}
  */
-function date( date, time = '' ) { return new Date( `${date}${time ? `T${time}` : 'T23:59'}` ) }
+function date( date, time = '' ) { return new Date( `${date}${time ? ` ${time}` : ' 23:59'}` ) }
 
 /**
  * Returns how much days in ms
@@ -161,7 +162,7 @@ function msToDays( ms ) { return ms / 1000 / 3600 / 24 }
 const storage = {
 
   /**
-   * Save value to the lcoalStorage with key
+   * Save value to the localStorage with key
    *
    * @param {string} key
    * @param {any} value
@@ -180,9 +181,8 @@ const storage = {
    * @returns {any}
    */
   get( key, defaultValue = null ) {
-    return ( gotten = localStorage.getItem( key ) )
-      ? JSON.parse( gotten ).data
-      : defaultValue
+    let gotten = localStorage.getItem( key );
+    return gotten ? JSON.parse( gotten ).data : defaultValue
   },
 
   /**
@@ -201,7 +201,8 @@ const storage = {
  * @returns {void}
  */
 function checkStorageVersion() {
-  if ( ( version = storage.get( 'version', '' ) ) !== '0.2' ) {
+  let version = storage.get( 'version', '' );
+  if ( version !== '0.2' ) {
     storage.clear();
     storage.save( 'version', '0.2' );
   }
@@ -225,7 +226,7 @@ function switchTab() {
   removeClass( select( `.tab_active` )[ 0 ], 'tab_active' );
   addClass( this, 'tab_active' );
 
-  state.activeTabID = +this.getAttribute( 'data-id' );
+  state.activeTabID = +!state.activeTabID;
 
   render();
 }

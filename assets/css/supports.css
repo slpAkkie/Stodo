@@ -51,9 +51,19 @@
 ._mt-4 { margin-top: 1em }
 ._mt-5 { margin-top: 1.5em }
 ._ml-2 { margin-left: .5em }
-._mx {
+._mx-2 {
   margin-left: .5em;
   margin-right: .5em;
+}
+._mx-a {
+  display: block;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+._my-4 {
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 ._p-4 { padding: 1em }

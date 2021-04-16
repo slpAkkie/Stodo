@@ -39,23 +39,23 @@ class Popup {
    */
   static #root = select( '.popup' )[ 0 ];
 
-  /** @var {string} */
+  /** @returns {string} */
   static get title() { return Popup.#title.value }
   static set title( value ) { Popup.#title.value = value }
 
-  /** @var {string} */
+  /** @returns {string} */
   static get date() { return Popup.#date.value || null }
   static set date( value ) { Popup.#date.value = value }
 
-  /** @var {string} */
+  /** @returns {string} */
   static get time() { return Popup.#time.value || null }
   static set time( value ) { Popup.#time.value = value }
 
-  /** @var {string} */
+  /** @returns {string} */
   static get completed() { return Popup.#checkbox.checked }
   static set completed( value ) { Popup.#checkbox.checked = value }
 
-  /** @var {string} */
+  /** @returns {Object[]} */
   static get subs() {
     let subTasks = select( '.popup__sub' ), subsData = [];
 
@@ -92,8 +92,8 @@ class Popup {
     let sub = create( `
       <div class="popup__sub row _justify-evenly _align-center">
         <input type="checkbox" class="popup__sub-completed" ${subData.completed ? 'checked' : ''}>
-        <input type="text" class="popup__sub-title input _mx _w-100" value="${subData.title}">
-        <div class="popup__sub-remove button button_danger">Удалить</div>
+        <input type="text" class="popup__sub-title input _mx-2 _w-100" value="${subData.title}">
+        <button class="popup__sub-remove button button_danger">Удалить</button>
       </div>
     `);
 
@@ -257,7 +257,7 @@ class Popup {
     Popup.completed = taskData.completed;
     Popup.subs = taskData.subs;
 
-    select( '#popup-completed' )[ 0 ].disabled = !Task.mayBeCompleted( taskData );
+    Popup.#checkbox.disabled = !Task.mayBeCompleted( taskData );
   }
 
 }

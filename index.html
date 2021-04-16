@@ -23,28 +23,25 @@
 
     <!-- -------------------------
     Header, search and button to add new task -->
-    <header>
+    <header class="page-header">
 
       <h1 class="header-title _text-center _py-5">Задачи</h1>
 
-      <div class="row">
-        <input type="text" class="input _w-100" id="filter-query" placeholder="Поиск по содержимому или дате">
-      </div>
-      <div class="row _justify-center _mt-4">
-        <div class="button" id="task-new">Добавить</div>
-      </div>
+      <input type="text" class="input _w-100" id="filter-query" placeholder="Поиск по содержимому или дате">
+
+      <button class="button _mx-a _my-4" id="task-new">Добавить</button>
 
     </header>
 
     <!-- -------------------------
     Tabs and task list -->
-    <main class="_mt-5">
+    <main class="page-content">
 
       <div class="sm:col lg:row _justify-evenly">
-        <div data-id="0" class="tab tab_active col _justify-center _align-center _py-3 _grow _text-bold _text-medium">
+        <div class="tab tab_active _py-3 _grow">
           Активные
         </div>
-        <div data-id="1" class="tab col _justify-center _align-center _py-3 _grow _text-bold _text-medium">
+        <div class="tab _py-3 _grow">
           Завершенные
         </div>
       </div>
@@ -57,11 +54,11 @@
   Popup -->
   <div class="popup _fullscreen">
 
-    <!-- Overaly -->
+    <!-- Overlay -->
     <div class="popup__overlay _fullscreen"></div>
 
     <!-- Popup window -->
-    <div class="popup__inner container _mt-5">
+    <div class="popup__inner">
 
       <!-- -------------------------
       Top line with close button -->
@@ -106,7 +103,7 @@
         <!-- Sub tasks -->
         <div class="row _justify-between _align-center _mt-5">
           <h3>Подзадачи</h3>
-          <div class="button" id="popup-sub-add">Добавить</div>
+          <button class="button" id="popup-sub-add">Добавить</button>
         </div>
         <div class="popup__subs-container col _mt-2 _py-1"></div>
 
@@ -116,8 +113,8 @@
       Control buttons -->
       <div class="popup__footer _py-4 _px-5">
         <div class="sm:col lg:row lg:_justify-end" id="js-popup-controls">
-          <div class="button button_danger sm:_text-center sm:_mt-1 lg:_ml-2" id="popup-delete">Удалить</div>
-          <div class="button button_success sm:_text-center sm:_mt-1 lg:_ml-2" id="popup-save">Сохранить</div>
+          <button class="button button_danger sm:_mt-1 lg:_ml-2" id="popup-delete">Удалить</button>
+          <button class="button button_success sm:_mt-1 lg:_ml-2" id="popup-save">Сохранить</button>
         </div>
       </div>
     </div>

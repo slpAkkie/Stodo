@@ -3,6 +3,10 @@
 .tab {
   cursor: pointer;
 
+  font-size: 1.25em;
+  font-weight: bold;
+  text-align: center;
+
   transition: all .15s ease;
 }
 
@@ -68,23 +72,37 @@
 .popup {
   display: none;
 
+  min-height: 525px;
+
   z-index: 101;
 }
 
 .popup.popup_shown { display: block }
 
 .popup__overlay {
-  background-color: var(--color-neutral);
+  background-color: var(--color-accent-op-1);
 
   z-index: -1;
 }
 
-.popup__inner { z-index: 1 }
+.popup__inner {
+  position: absolute;
+  top: 8em;
+  left: 50%;
+
+  max-width: 856px;
+  width: 100%;
+  padding: 0 2em;
+
+  transform: translateX(-50%);
+
+  z-index: 1;
+}
 
 .popup__header {
   color: var(--color-light);
 
-  background-color: var(--color-darker);
+  background-color: var(--color-accent);
   border-radius: .25em .25em 0 0;
 }
 
