@@ -25,11 +25,11 @@
     Header, search and button to add new task -->
     <header class="page-header">
 
-      <h1 class="header-title _text-center _py-5">Задачи</h1>
+      <h1 class="header-title">Задачи</h1>
 
       <input type="text" class="input _w-100" id="filter-query" placeholder="Поиск по содержимому или дате">
 
-      <button class="button _mx-a _my-4" id="task-new">Добавить</button>
+      <button class="button" id="task-new">Добавить</button>
 
     </header>
 
@@ -38,43 +38,40 @@
     <main class="page-content">
 
       <div class="sm:col lg:row _justify-evenly">
-        <div class="tab tab_active _py-3 _grow">
+        <div class="tab tab_active">
           Активные
         </div>
-        <div class="tab _py-3 _grow">
+        <div class="tab">
           Завершенные
         </div>
       </div>
-      <div class="tasks-container _p-4"></div>
+      <div class="tasks-container"></div>
 
     </main>
   </div>
 
   <!-- --------------------------------------------------
   Popup -->
-  <div class="popup _fullscreen">
-
-    <!-- Overlay -->
-    <div class="popup__overlay _fullscreen"></div>
+  <div class="popup">
 
     <!-- Popup window -->
     <div class="popup__inner">
 
       <!-- -------------------------
       Top line with close button -->
-      <div class="popup__header row _justify-end _align-center _py-2 _px-4">
-        <span class="col _text-semi-bold" id="popup-close">Закрыть</span>
+      <div class="popup__header row _justify-end _align-center">
+        <span id="popup-close">Закрыть</span>
       </div>
 
       <!-- -------------------------
       Fields -->
-      <div class="popup__main _p-5">
+      <div class="popup__main">
 
         <!-- Title -->
         <div class="row">
           <label class="label">
             <span class="label-text">Название задачи</span>
-            <input type="text" id="popup-title" class="input _w-100 _mt-1">
+            <input type="text" id="popup-title" class="input _w-100">
           </label>
         </div>
         <div class="sm:col lg:row _justify-evenly _mt-4">
@@ -82,22 +79,22 @@
           <div class="row _grow lg:_mr-3 _w-100">
             <label class="label">
               <span class="label-text">К дате</span>
-              <input type="date" id="popup-date" class="input _w-100 _mt-1">
+              <input type="date" id="popup-date" class="input _w-100">
             </label>
           </div>
           <!-- Time -->
           <div class="row _grow lg:_ml-3 sm:_mt-2 _w-100">
             <label class="label">
               <span class="label-text">Ко времени</span>
-              <input type="time" id="popup-time" class="input _w-100 _mt-1">
+              <input type="time" id="popup-time" class="input _w-100">
             </label>
           </div>
         </div>
         <!-- Completed -->
         <div class="row _mt-4">
           <label class="label row _align-center">
-            <input type="checkbox" id="popup-completed">
-            <span class="_ml-2">Выполнено</span>
+            <input type="checkbox" class="input_checkbox" id="popup-completed">
+            <span class="label-text">Выполнено</span>
           </label>
         </div>
         <!-- Sub tasks -->
@@ -105,13 +102,13 @@
           <h3>Подзадачи</h3>
           <button class="button" id="popup-sub-add">Добавить</button>
         </div>
-        <div class="popup__subs-container col _mt-2 _py-1"></div>
+        <div class="popup__subs-container col"></div>
 
       </div>
 
       <!-- -------------------------
       Control buttons -->
-      <div class="popup__footer _py-4 _px-5">
+      <div class="popup__footer">
         <div class="sm:col lg:row lg:_justify-end" id="js-popup-controls">
           <button class="button button_danger sm:_mt-1 lg:_ml-2" id="popup-delete">Удалить</button>
           <button class="button button_success sm:_mt-1 lg:_ml-2" id="popup-save">Сохранить</button>

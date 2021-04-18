@@ -186,18 +186,20 @@ class Task {
   static createElement( taskData ) {
     return create( `
       <div class="task">
-        <div class="task__inner row _justify-evenly _align-center _py-2 _px-3">
-          <label class="checkbox ${taskData.completed ? 'checkbox_checked' : ''}">
-            <input type="checkbox" class="task__completed" hidden
-              ${Task.mayBeCompleted( taskData ) ? '' : 'disabled'}
+        <div class="task__inner row _justify-evenly _align-center">
+          <label class="checkbox
+          ${taskData.completed ? 'checkbox_checked' : ''}
+          ${taskData.mayBeCompleted ? '' : 'checkbox_disabled'}">
+            <input type="checkbox" class="task__completed input_checkbox" hidden
+              ${taskData.mayBeCompleted ? '' : 'disabled'}
               ${taskData.completed ? 'checked' : ''}>
           </label>
-          <div class="task__body sm:col lg:row _justify-between _grow _ml-2">
-            <div class="task__title _text-semi-bold _grow">${taskData.title}</div>
-            <div class="sm:_mt-1 lg:_ml-2 _text-semi-bold ${taskData.statusClass}">${taskData.status}</div>
+          <div class="task__body sm:col lg:row _justify-between">
+            <div class="task__title">${taskData.title}</div>
+            <div class="tesk__status sm:_mt-1 lg:_ml-2 ${taskData.statusClass}">${taskData.status}</div>
           </div>
         </div>
-        ${taskData.hasSubs ? `<div class="task__subs-container _mt-1 _py-3 _pl-1"></div>` : ''}
+        ${taskData.hasSubs ? `<div class="task__subs-container"></div>` : ''}
       </div>
     `);
   }
@@ -210,11 +212,11 @@ class Task {
    */
   static createSubElement( subData ) {
     return create( `
-      <div class="task__sub row _justify-evenly _align-center _py-2 _px-3">
+      <div class="sub-task row _justify-evenly _align-center">
         <label class="checkbox ${subData.completed ? 'checkbox_checked' : ''}">
-          <input type="checkbox" class="popup__sub-completed" hidden ${subData.completed ? 'checked' : ''}>
+          <input type="checkbox" class="sub-task__completed input_checkbox" hidden ${subData.completed ? 'checked' : ''}>
         </label>
-        <div class="_mx-2 _grow">${subData.title}</div>
+        <div class="sub-task__title">${subData.title}</div>
       </div>
     `);
   }
@@ -302,7 +304,7 @@ class Task {
 
       each( task.subs, sub => {
         let foundInSub = !!sub.title.match( regexp );
-        if (foundInSub) sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' );
+        if ( foundInSub ) sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' );
         found = true;
       } );
 
@@ -323,10 +325,11 @@ class Task {
     taskID = taskData.id || taskID;
     taskData.hasSubs = !!taskData.subs.length;
     Object.assign( taskData, Task.status( taskData ) );
+    taskData.mayBeCompleted = Task.mayBeCompleted( taskData );
     let taskElement = Task.createElement( taskData );
 
     select( '.task__completed', taskElement )[ 0 ].taskID = taskID;
-    select( '.checkbox', taskElement )[ 0 ].addEventListener( 'click', function () { Task.changeState.call( select('.task__completed', this )[0] ) } );
+    select( '.checkbox', taskElement )[ 0 ].addEventListener( 'click', function () { Task.changeState.call( select( '.task__completed', this )[ 0 ] ) } );
     let taskInner = select( '.task__inner', taskElement )[ 0 ];
     taskInner.taskID = taskID;
     taskInner.addEventListener( 'click', function ( evt ) {
@@ -335,7 +338,7 @@ class Task {
 
     let subContainer = select( '.task__subs-container', taskElement )[ 0 ];
     each( taskData.subs, ( subData, subID ) => {
-      let checkbox = select( '.popup__sub-completed', append( subContainer, Task.createSubElement( subData ) ) )[ 0 ];
+      let checkbox = select( '.sub-task__completed', append( subContainer, Task.createSubElement( subData ) ) )[ 0 ];
       checkbox.parentID = taskID;
       checkbox.taskID = subID;
       checkbox.addEventListener( 'click', Task.changeSubState );

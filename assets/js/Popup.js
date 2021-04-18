@@ -27,10 +27,10 @@ class Popup {
   static #checkbox = select( '#popup-completed' )[ 0 ];
 
   /** @type {Element} */
-  static delButton = select( '#popup-delete' )[0];
+  static delButton = select( '#popup-delete' )[ 0 ];
 
   /** @type {Element} */
-  static saveButton = select( '#popup-save' )[0];
+  static saveButton = select( '#popup-save' )[ 0 ];
 
   /**
    * Get root popup element
@@ -92,7 +92,7 @@ class Popup {
     let sub = create( `
       <div class="popup__sub row _justify-evenly _align-center">
         <input type="checkbox" class="popup__sub-completed" ${subData.completed ? 'checked' : ''}>
-        <input type="text" class="popup__sub-title input _mx-2 _w-100" value="${subData.title}">
+        <input type="text" class="popup__sub-title input _w-100" value="${subData.title}">
         <button class="popup__sub-remove button button_danger">Удалить</button>
       </div>
     `);
@@ -177,7 +177,7 @@ class Popup {
    * @returns {void}
    */
   static show( mode = 'new' ) {
-    Popup.delButton.hidden = (Popup.mode = mode) !== 'edit';
+    Popup.delButton.hidden = ( Popup.mode = mode ) !== 'edit';
     addClass( Popup.#root, 'popup_shown' );
   }
 

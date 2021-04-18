@@ -92,6 +92,7 @@ label.checkbox_checked::after {
   line-height: 1;
 }
 
+label.checkbox_disabled { background-color: var(--color-light) }
 
 
 
