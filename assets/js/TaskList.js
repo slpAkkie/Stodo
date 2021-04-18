@@ -126,7 +126,7 @@ class TaskList {
    * @returns {void}
    */
   static save() {
-    storage.save( 'tabs', TaskList.tabs );
+    storage.save( 'tabs', TaskList.tabs.map( tab => ( tab.map( task => ( { title: task.title, until: task.until, completed: task.completed, subs: task.subs } ) ) ) ) );
     render();
   }
 
