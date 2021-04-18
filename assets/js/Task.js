@@ -199,7 +199,6 @@ class Task {
             <div class="tesk__status sm:_mt-1 lg:_ml-2 ${statusClass}">${status}</div>
           </div>
         </div>
-        ${hasSubs ? '<div class="task__subs-container"></div>' : ''}
       </div>
     `);
 
@@ -220,6 +219,14 @@ class Task {
     let taskBody = select( '.task__body', task )[ 0 ];
     taskBody.taskID = taskID;
     taskBody.addEventListener( 'click', Task.editHandler );
+
+    if ( hasSubs ) {
+      let subContainer = append( task, create( '<div class="task__subs-container"></div>' ) );
+      each(
+        taskData.subs,
+        ( subData, subID ) => append( subContainer, Task.createSubElement( subData, subID, taskID ) )
+      );
+    }
 
     return task;
   }
@@ -359,12 +366,6 @@ class Task {
   static render( taskData, taskID ) {
     taskID = taskData.id || taskID;
     let task = Task.createElement( taskData, taskID );
-
-    let subContainer = select( '.task__subs-container', task )[ 0 ];
-    each(
-      taskData.subs,
-      ( subData, subID ) => append( subContainer, Task.createSubElement( subData, subID, taskID ) )
-    );
 
     TaskList.container.append( task );
   }
