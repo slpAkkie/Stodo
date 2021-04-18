@@ -27,7 +27,7 @@ window.addEventListener( 'DOMContentLoaded', function () {
   tabs ? TaskList.load( tabs ) : TaskList.save();
 
   select( '#filter-query' )[ 0 ].addEventListener( 'input', TaskList.filterHandler );
-  select( '#task-new' )[ 0 ].addEventListener( 'click', Task.create );
+  select( '#task-new' )[ 0 ].addEventListener( 'click', Task.createNew );
   select( '#popup-close' )[ 0 ].addEventListener( 'click', Popup.hide );
   select( '#popup-sub-add' )[ 0 ].addEventListener( 'click', Popup.addSub );
   each( select( '.tab' ), tab => tab.addEventListener( 'click', switchTab ) );

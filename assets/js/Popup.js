@@ -91,20 +91,28 @@ class Popup {
     subData = subData ?? { title: '', completed: false };
     let sub = create( `
       <div class="popup__sub row _justify-evenly _align-center">
-        <input type="checkbox" class="popup__sub-completed" ${subData.completed ? 'checked' : ''}>
+        <input type="checkbox" class="popup__sub-completed">
         <input type="text" class="popup__sub-title input _w-100" value="${subData.title}">
         <button class="popup__sub-remove button button_danger">Удалить</button>
       </div>
     `);
 
-    select( '.popup__sub-completed', sub )[ 0 ].addEventListener( 'click', Popup.changeSubState );
+    let checkbox = select( '.popup__sub-completed', sub )[ 0 ];
+    checkbox.checked = subData.completed;
+    checkbox.addEventListener( 'click', Popup.updateCheckboxDisableStatus );
     select( '.popup__sub-remove', sub )[ 0 ].addEventListener( 'click', Popup.removeSub );
     return sub;
   }
 
-  static renderSub( subElement ) {
-    append( Popup.getSubContainer(), subElement );
-    return subElement
+  /**
+   * Render created sub element to the popup
+   *
+   * @param {ChildNode} sub
+   * @returns ChildNode
+   */
+  static renderSub( sub ) {
+    append( Popup.getSubContainer(), sub );
+    return sub
   }
 
   /**
@@ -114,8 +122,7 @@ class Popup {
    */
   static addSub() {
     Popup.renderSub( Popup.createSub() );
-    Popup.completed = false;
-    select( '#popup-completed' )[ 0 ].disabled = true;
+    Popup.updateCheckboxDisableStatus();
   }
 
   /**
@@ -124,10 +131,8 @@ class Popup {
    * @returns {void}
    */
   static removeSub() {
-    getParent( this ).remove();
-    let popupSubs = Popup.subs;
-    if ( !popupSubs.length || popupSubs.filter( popupSub => ( popupSub.completed ) ).length === popupSubs.length )
-      Popup.#checkbox.disabled = false;
+    getParent( this, '.popup__sub' ).remove();
+    Popup.updateCheckboxDisableStatus();
   }
 
   /**
@@ -135,13 +140,10 @@ class Popup {
    *
    * @returns {void}
    */
-  static changeSubState() {
-    if ( !Task.mayBeCompleted( { subs: Popup.subs } ) ) {
-      Popup.completed = false;
-      Popup.#checkbox.disabled = true;
-    } else {
-      Popup.#checkbox.disabled = false;
-    }
+  static updateCheckboxDisableStatus() {
+    let allSubsCompleted = Task.mayBeCompleted( { subs: Popup.subs } );
+    if ( !allSubsCompleted ) Popup.completed = false;
+    Popup.#checkbox.disabled = !allSubsCompleted;
   }
 
   /**
@@ -167,7 +169,7 @@ class Popup {
 
     if ( response.success ) return Popup.hide();
 
-    Popup.setErrors( response );
+    Popup.setErrors( response.errors );
   }
 
   /**
@@ -233,8 +235,8 @@ class Popup {
     if ( errors.date ) addClass( Popup.#date, 'input_wrong' );
     if ( errors.time ) addClass( Popup.#time, 'input_wrong' );
     if ( errors.subs ) {
-      let subElements = select( '.popup__sub-title', Popup.#root );
-      each( errors.subs, id => addClass( subElements[ id ], 'input_wrong' ) );
+      let subs = select( '.popup__sub-title', Popup.#root );
+      each( errors.subs, id => addClass( subs[ id ], 'input_wrong' ) );
     }
   }
 

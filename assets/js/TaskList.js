@@ -56,6 +56,11 @@ class TaskList {
    */
   static getTask( taskID, tab = null ) { return ( !tab && ( tab = TaskList.getCurrentTasks() ) ) && tab[ taskID ] }
 
+  static replace( taskID, newTaskData ) {
+    TaskList.tabs[ state.activeTabID ][ taskID ] = newTaskData
+    return newTaskData
+  }
+
   /**
    * Get tasks for current tab
    *

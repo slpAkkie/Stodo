@@ -12,7 +12,7 @@ class Task {
    *
    * @returns {void}
    */
-  static create() { Popup.show() }
+  static createNew() { Popup.show() }
 
   /**
    * Opens popup window in edit mode and fill it with task data
@@ -30,29 +30,30 @@ class Task {
    * Update an exiting task by it's id
    *
    * @param {number} taskID
-   * @param {Object} taskData
-   * @returns {boolean|Object} True if task was updated successfully or Array with wrong fields
+   * @param {Object} newTaskData
+   * @returns {Object} True if task was updated successfully or Array with wrong fields
    */
-  static update( taskID, taskData ) {
-    let errors = Task.check( taskData );
+  static update( taskID, newTaskData ) {
+    let validate = Task.check( newTaskData );
 
-    let oldData = TaskList.getTask( taskID );
-    if ( date( taskData.until.date, taskData.until.time ) - date( oldData.until.date, oldData.until.time ) === 0 ) {
-      delete errors.date;
-      delete errors.time;
+    let taskData = TaskList.getTask( taskID );
 
-      if ( errors.title || errors.subs ) return errors;
-    } else {
-      if ( errors ) return errors;
-    }
+    // If time wasn't changed
+    if ( taskData.until.date && newTaskData.until.date && date( newTaskData.until.date, newTaskData.until.time ) - date( taskData.until.date, taskData.until.time ) === 0 ) {
+      !validate && ( validate = { errors: {} } );
+      validate.errors.date = false;
+      validate.errors.time = false;
 
-    let oldState = oldData.completed;
-    TaskList.tabs[ state.activeTabID ][ taskID ] = taskData;
+      if ( validate.errors.title || validate.errors.subs ) return validate;
+    } else if ( validate.errors ) return validate;
 
-    if ( oldState !== TaskList.tabs[ state.activeTabID ][ taskID ].completed ) {
-      if ( taskData.completed ) Task.moveToCompleted( taskID );
-      else Task.moveToActive( taskID );
-    }
+    let oldCompletedState = taskData.completed;
+    taskData = TaskList.replace( taskID, newTaskData );
+
+    if ( oldCompletedState !== taskData.completed )
+      taskData.completed
+        ? Task.moveToCompleted( taskID )
+        : Task.moveToActive( taskID );
 
     TaskList.save();
     render();
@@ -67,11 +68,12 @@ class Task {
    * @returns {boolean|Object} True if task was save successfully or Array with wrong fields
    */
   static save( taskData ) {
-    let errors = Task.check( taskData );
-    if ( errors ) return errors;
+    let validate = Task.check( taskData );
+    if ( validate.errors ) return validate;
 
-    if ( taskData.completed ) TaskList.pushCompleted( taskData );
-    else TaskList.pushActive( taskData );
+    taskData.completed
+      ? TaskList.pushCompleted( taskData )
+      : TaskList.pushActive( taskData );
 
     TaskList.save();
     render();
@@ -100,27 +102,23 @@ class Task {
    * @returns {Object|boolean}
    */
   static check( taskData ) {
-    let errors = {}, errorsCount = 0;
+    let errors = {};
 
-    if ( !taskData.title ) { errors.title = true; errorsCount++; }
-    if ( taskData.until.time && !taskData.until.date ) { errors.date = true; errorsCount++; }
-    if ( taskData.until.date ) {
-      if ( date( taskData.until.date, taskData.until.time || null ) <= new Date() ) {
-        errors.date = true;
-        errors.time = true;
-        errorsCount++;
-      }
-    }
+    if ( !taskData.title ) errors.title = true;
+    if ( taskData.until.time && !taskData.until.date ) errors.date = true;
+    if (
+      taskData.until.date
+      && date( taskData.until.date, taskData.until.time || null ) <= new Date()
+    ) errors.date = errors.time = true;
 
     each( taskData.subs, ( sub, id ) => {
       if ( !sub.title ) {
         if ( !errors.subs ) errors.subs = [];
         errors.subs.push( id );
-        errorsCount++;
       }
     } );
 
-    return errorsCount ? errors : false;
+    return Object.keys( errors ).length ? { errors: errors } : false;
   }
 
   /**
@@ -271,9 +269,10 @@ class Task {
     let sub = parentTask.subs[ this.taskID ];
     sub.completed = this.checked;
 
+    // Move to active if the sub became false and the parent task has been completed
     if ( !sub.completed && parentTask.completed ) {
       parentTask.completed = false;
-      Task.moveToActive( this.parentID )
+      Task.moveToActive( this.parentID );
     }
 
     TaskList.save();
@@ -284,13 +283,15 @@ class Task {
    * Change task's completed state
    *
    * @returns {void}
+   * @this {ChildNode} Task's checkbox
    */
   static changeState() {
     let task = TaskList.getTask( this.taskID );
     task.completed = this.checked;
 
-    if ( task.completed ) Task.moveToCompleted( this.taskID )
-    else Task.moveToActive( this.taskID )
+    task.completed
+      ? Task.moveToCompleted( this.taskID )
+      : Task.moveToActive( this.taskID );
 
     TaskList.save();
     render();
