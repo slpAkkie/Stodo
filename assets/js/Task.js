@@ -321,36 +321,29 @@ class Task {
    *
    * @param {Object} taskData
    * @param {Array} filters
-   * @param {number} taskID
    * @returns {Object|boolean}
    */
-  static matchFilter( taskData, filters, taskID ) {
+  static matchFilter( taskData, filters ) {
     let foundFilters = 0,
+      // Clone the task to avoid change the saved data
       task = Task.clone( taskData );
-
-    task.id = taskID;
 
     each( filters, filter => {
       let found = false;
       let regexp = new RegExp( `(${filter})`, 'gi' );
 
-      found = found || ( task.title.match( regexp ) && !!( task.title = task.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) ) );
-      found = found || ( Task.status( task ).status.match( regexp ) );
+      if ( task.title.match( regexp ) ) { found = !!( task.title = task.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) ) }
+      if ( Task.status( task ).status.match( regexp ) ) found = true;
       if ( task.until.date ) {
-        let untilDate = date( task.until.date ).toLocaleDateString();
-        found = found || ( untilDate.match( regexp ) );
-        task.until.time && ( found = found || ( task.until.time.match( regexp ) ) );
+        if ( date( task.until.date ).toLocaleDateString().match( regexp ) ) found = true;
+        if ( task.until.time && task.until.time.match( regexp ) ) found = true;
       }
 
       each( task.subs, sub => {
-        let foundInSub = !!sub.title.match( regexp );
-        if ( foundInSub ) {
-          sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' );
-          found = true;
-        }
+        if ( !!sub.title.match( regexp ) ) found = !!( sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) )
       } );
 
-      if ( found ) foundFilters++;
+      foundFilters += +found;
     } );
 
     return foundFilters === filters.length ? task : false
@@ -364,6 +357,7 @@ class Task {
    * @returns {void}
    */
   static render( taskData, taskID ) {
+    // If the tasks were filered, it retians the original task id otherwise the original id is passed as parameter
     taskID = taskData.id || taskID;
     let task = Task.createElement( taskData, taskID );
 
