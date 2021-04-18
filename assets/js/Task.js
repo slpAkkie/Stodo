@@ -179,6 +179,7 @@ class Task {
    * Create task element which can be inserted to the page
    *
    * @param {Object} taskData
+   * @param {Number} taskID
    * @returns {ChildNode}
    */
   static createElement( taskData, taskID ) {
@@ -233,6 +234,8 @@ class Task {
    * Create task's sub element which can be inserted to the task element
    *
    * @param {Object} subData
+   * @param {Number} subID
+   * @param {Object} parentID
    * @returns {ChildNode}
    */
   static createSubElement( subData, subID, parentID ) {
@@ -358,7 +361,7 @@ class Task {
    * @returns {void}
    */
   static render( taskData, taskID ) {
-    // If the tasks were filered, it retians the original task id otherwise the original id is passed as parameter
+    // If the tasks were filtered, it retains the original task id otherwise the original id is passed as parameter
     taskID = taskData.id || taskID;
     let task = Task.createElement( taskData, taskID );
 
