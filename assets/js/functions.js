@@ -68,7 +68,7 @@ function create( markup ) {
  * @returns {Element|Node} Inserted element
  */
 function prepend( node, child ) {
-  node.prepend(child);
+  node.prepend( child );
   return child
 }
 
@@ -223,6 +223,8 @@ function checkStorageVersion() {
  * @returns {void}
  */
 function switchTab() {
+  if ( this.matches( '.tab_active' ) ) return;
+
   removeClass( select( `.tab_active` )[ 0 ], 'tab_active' );
   addClass( this, 'tab_active' );
 
