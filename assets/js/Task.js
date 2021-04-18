@@ -184,7 +184,7 @@ class Task {
    * @returns {ChildNode}
    */
   static createElement( taskData ) {
-    return create( `
+    let task = create( `
       <div class="task">
         <div class="task__inner row _justify-evenly _align-center">
           <label class="checkbox
@@ -202,6 +202,8 @@ class Task {
         ${taskData.hasSubs ? `<div class="task__subs-container"></div>` : ''}
       </div>
     `);
+
+    return task;
   }
 
   /**
@@ -328,8 +330,9 @@ class Task {
     taskData.mayBeCompleted = Task.mayBeCompleted( taskData );
     let taskElement = Task.createElement( taskData );
 
-    select( '.task__completed', taskElement )[ 0 ].taskID = taskID;
-    select( '.checkbox', taskElement )[ 0 ].addEventListener( 'click', function () { Task.changeState.call( select( '.task__completed', this )[ 0 ] ) } );
+    let checkbox = select( '.task__completed', taskElement )[ 0 ];
+    checkbox.taskID = taskID;
+    checkbox.addEventListener( 'change', Task.changeState );
     let taskInner = select( '.task__inner', taskElement )[ 0 ];
     taskInner.taskID = taskID;
     taskInner.addEventListener( 'click', function ( evt ) {
