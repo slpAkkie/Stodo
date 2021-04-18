@@ -70,12 +70,15 @@ class TaskList {
    * @returns {Array}
    */
   static getTasksByFilter( filter ) {
-    let unfiltered = TaskList.getCurrentTasks(),
-      filtered = [];
+    let filtered = [];
 
-    each( unfiltered, ( task, taskID ) => {
-      let matched = Task.matchFilter( task, filter, taskID );
-      return matched && filtered.push( matched )
+    each( TaskList.getCurrentTasks(), ( task, taskID ) => {
+      let matched = Task.matchFilter( task, filter );
+      if ( matched ) {
+        // Save original task id value
+        matched.id = taskID;
+        filtered.push( matched )
+      }
     } );
 
     return filtered;
