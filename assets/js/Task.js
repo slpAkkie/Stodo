@@ -183,25 +183,43 @@ class Task {
    * @param {Object} taskData
    * @returns {ChildNode}
    */
-  static createElement( taskData ) {
+  static createElement( taskData, taskID ) {
+    let hasSubs = !!taskData.subs.length,
+      mayBeCompleted = Task.mayBeCompleted( taskData ),
+      { status, statusClass } = Task.status( taskData );
+
     let task = create( `
       <div class="task">
         <div class="task__inner row _justify-evenly _align-center">
-          <label class="checkbox
-          ${taskData.completed ? 'checkbox_checked' : ''}
-          ${taskData.mayBeCompleted ? '' : 'checkbox_disabled'}">
-            <input type="checkbox" class="task__completed input_checkbox" hidden
-              ${taskData.mayBeCompleted ? '' : 'disabled'}
-              ${taskData.completed ? 'checked' : ''}>
+          <label class="checkbox">
+            <input type="checkbox" class="task__completed input_checkbox" hidden>
           </label>
           <div class="task__body sm:col lg:row _justify-between">
             <div class="task__title">${taskData.title}</div>
-            <div class="tesk__status sm:_mt-1 lg:_ml-2 ${taskData.statusClass}">${taskData.status}</div>
+            <div class="tesk__status sm:_mt-1 lg:_ml-2 ${statusClass}">${status}</div>
           </div>
         </div>
-        ${taskData.hasSubs ? `<div class="task__subs-container"></div>` : ''}
+        ${hasSubs ? '<div class="task__subs-container"></div>' : ''}
       </div>
     `);
+
+    let label = select( '.checkbox', task )[ 0 ];
+    let checkbox = select( '.input_checkbox', task )[ 0 ];
+    checkbox.taskID = taskID;
+    checkbox.addEventListener( 'change', Task.changeState );
+
+    if ( taskData.completed ) {
+      addClass( label, 'checkbox_checked' );
+      checkbox.checked = true;
+    }
+    if ( !mayBeCompleted ) {
+      addClass( label, 'checkbox_disabled' );
+      checkbox.disabled = true;
+    }
+
+    let taskBody = select( '.task__body', task )[ 0 ];
+    taskBody.taskID = taskID;
+    taskBody.addEventListener( 'click', Task.editHandler );
 
     return task;
   }
@@ -212,15 +230,28 @@ class Task {
    * @param {Object} subData
    * @returns {ChildNode}
    */
-  static createSubElement( subData ) {
-    return create( `
+  static createSubElement( subData, subID, parentID ) {
+    let sub = create( `
       <div class="sub-task row _justify-evenly _align-center">
-        <label class="checkbox ${subData.completed ? 'checkbox_checked' : ''}">
-          <input type="checkbox" class="sub-task__completed input_checkbox" hidden ${subData.completed ? 'checked' : ''}>
+        <label class="checkbox">
+          <input type="checkbox" class="sub-task__completed input_checkbox" hidden>
         </label>
         <div class="sub-task__title">${subData.title}</div>
       </div>
     `);
+
+    let label = select( '.checkbox', sub )[ 0 ];
+    let checkbox = select( '.input_checkbox', sub )[ 0 ];
+    checkbox.parentID = parentID;
+    checkbox.taskID = subID;
+    checkbox.addEventListener( 'click', Task.changeSubState );
+
+    if ( subData.completed ) {
+      checkbox.checked = true;
+      addClass( label, 'checkbox_checked' );
+    }
+
+    return sub;
   }
 
   /**
@@ -306,8 +337,10 @@ class Task {
 
       each( task.subs, sub => {
         let foundInSub = !!sub.title.match( regexp );
-        if ( foundInSub ) sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' );
-        found = true;
+        if ( foundInSub ) {
+          sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' );
+          found = true;
+        }
       } );
 
       if ( found ) foundFilters++;
@@ -325,29 +358,15 @@ class Task {
    */
   static render( taskData, taskID ) {
     taskID = taskData.id || taskID;
-    taskData.hasSubs = !!taskData.subs.length;
-    Object.assign( taskData, Task.status( taskData ) );
-    taskData.mayBeCompleted = Task.mayBeCompleted( taskData );
-    let taskElement = Task.createElement( taskData );
+    let task = Task.createElement( taskData, taskID );
 
-    let checkbox = select( '.task__completed', taskElement )[ 0 ];
-    checkbox.taskID = taskID;
-    checkbox.addEventListener( 'change', Task.changeState );
-    let taskInner = select( '.task__inner', taskElement )[ 0 ];
-    taskInner.taskID = taskID;
-    taskInner.addEventListener( 'click', function ( evt ) {
-      if ( !evt.target.matches( '.checkbox' ) && !evt.target.matches( '.task__completed' ) ) Task.editHandler.call( this )
-    } );
+    let subContainer = select( '.task__subs-container', task )[ 0 ];
+    each(
+      taskData.subs,
+      ( subData, subID ) => append( subContainer, Task.createSubElement( subData, subID, taskID ) )
+    );
 
-    let subContainer = select( '.task__subs-container', taskElement )[ 0 ];
-    each( taskData.subs, ( subData, subID ) => {
-      let checkbox = select( '.sub-task__completed', append( subContainer, Task.createSubElement( subData ) ) )[ 0 ];
-      checkbox.parentID = taskID;
-      checkbox.taskID = subID;
-      checkbox.addEventListener( 'click', Task.changeSubState );
-    } );
-
-    TaskList.container.append( taskElement );
+    TaskList.container.append( task );
   }
 
 }
