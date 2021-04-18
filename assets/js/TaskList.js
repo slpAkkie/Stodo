@@ -56,6 +56,11 @@ class TaskList {
    */
   static getTask( taskID, tab = null ) { return ( !tab && ( tab = TaskList.getCurrentTasks() ) ) && tab[ taskID ] }
 
+  static replace( taskID, newTaskData ) {
+    TaskList.tabs[ state.activeTabID ][ taskID ] = newTaskData
+    return newTaskData
+  }
+
   /**
    * Get tasks for current tab
    *
@@ -70,12 +75,15 @@ class TaskList {
    * @returns {Array}
    */
   static getTasksByFilter( filter ) {
-    let unfiltered = TaskList.getCurrentTasks(),
-      filtered = [];
+    let filtered = [];
 
-    each( unfiltered, ( task, taskID ) => {
-      let matched = Task.matchFilter( task, filter, taskID );
-      return matched && filtered.push( matched )
+    each( TaskList.getCurrentTasks(), ( task, taskID ) => {
+      let matched = Task.matchFilter( task, filter );
+      if ( matched ) {
+        // Save original task id value
+        matched.id = taskID;
+        filtered.push( matched )
+      }
     } );
 
     return filtered;
@@ -126,7 +134,12 @@ class TaskList {
    * @returns {void}
    */
   static save() {
-    storage.save( 'tabs', TaskList.tabs );
+    storage.save( 'tabs', TaskList.tabs.map(
+      tab => ( tab.map(
+        task => ( { title: task.title, until: task.until, completed: task.completed, subs: task.subs } )
+      ) )
+    ) );
+
     render();
   }
 

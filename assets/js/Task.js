@@ -12,7 +12,7 @@ class Task {
    *
    * @returns {void}
    */
-  static create() { Popup.show() }
+  static createNew() { Popup.show() }
 
   /**
    * Opens popup window in edit mode and fill it with task data
@@ -30,29 +30,30 @@ class Task {
    * Update an exiting task by it's id
    *
    * @param {number} taskID
-   * @param {Object} taskData
-   * @returns {boolean|Object} True if task was updated successfully or Array with wrong fields
+   * @param {Object} newTaskData
+   * @returns {Object} True if task was updated successfully or Array with wrong fields
    */
-  static update( taskID, taskData ) {
-    let errors = Task.check( taskData );
+  static update( taskID, newTaskData ) {
+    let validate = Task.check( newTaskData );
 
-    let oldData = TaskList.getTask( taskID );
-    if ( date( taskData.until.date, taskData.until.time ) - date( oldData.until.date, oldData.until.time ) === 0 ) {
-      delete errors.date;
-      delete errors.time;
+    let taskData = TaskList.getTask( taskID );
 
-      if ( errors.title || errors.subs ) return errors;
-    } else {
-      if ( errors ) return errors;
-    }
+    // If time wasn't changed
+    if ( taskData.until.date && newTaskData.until.date && date( newTaskData.until.date, newTaskData.until.time ) - date( taskData.until.date, taskData.until.time ) === 0 ) {
+      !validate && ( validate = { errors: {} } );
+      validate.errors.date = false;
+      validate.errors.time = false;
 
-    let oldState = oldData.completed;
-    TaskList.tabs[ state.activeTabID ][ taskID ] = taskData;
+      if ( validate.errors.title || validate.errors.subs ) return validate;
+    } else if ( validate.errors ) return validate;
 
-    if ( oldState !== TaskList.tabs[ state.activeTabID ][ taskID ].completed ) {
-      if ( taskData.completed ) Task.moveToCompleted( taskID );
-      else Task.moveToActive( taskID );
-    }
+    let oldCompletedState = taskData.completed;
+    taskData = TaskList.replace( taskID, newTaskData );
+
+    if ( oldCompletedState !== taskData.completed )
+      taskData.completed
+        ? Task.moveToCompleted( taskID )
+        : Task.moveToActive( taskID );
 
     TaskList.save();
     render();
@@ -67,11 +68,12 @@ class Task {
    * @returns {boolean|Object} True if task was save successfully or Array with wrong fields
    */
   static save( taskData ) {
-    let errors = Task.check( taskData );
-    if ( errors ) return errors;
+    let validate = Task.check( taskData );
+    if ( validate.errors ) return validate;
 
-    if ( taskData.completed ) TaskList.pushCompleted( taskData );
-    else TaskList.pushActive( taskData );
+    taskData.completed
+      ? TaskList.pushCompleted( taskData )
+      : TaskList.pushActive( taskData );
 
     TaskList.save();
     render();
@@ -100,27 +102,23 @@ class Task {
    * @returns {Object|boolean}
    */
   static check( taskData ) {
-    let errors = {}, errorsCount = 0;
+    let errors = {};
 
-    if ( !taskData.title ) { errors.title = true; errorsCount++; }
-    if ( taskData.until.time && !taskData.until.date ) { errors.date = true; errorsCount++; }
-    if ( taskData.until.date ) {
-      if ( date( taskData.until.date, taskData.until.time || null ) <= new Date() ) {
-        errors.date = true;
-        errors.time = true;
-        errorsCount++;
-      }
-    }
+    if ( !taskData.title ) errors.title = true;
+    if ( taskData.until.time && !taskData.until.date ) errors.date = true;
+    if (
+      taskData.until.date
+      && date( taskData.until.date, taskData.until.time || null ) <= new Date()
+    ) errors.date = errors.time = true;
 
     each( taskData.subs, ( sub, id ) => {
       if ( !sub.title ) {
         if ( !errors.subs ) errors.subs = [];
         errors.subs.push( id );
-        errorsCount++;
       }
     } );
 
-    return errorsCount ? errors : false;
+    return Object.keys( errors ).length ? { errors: errors } : false;
   }
 
   /**
@@ -183,25 +181,52 @@ class Task {
    * @param {Object} taskData
    * @returns {ChildNode}
    */
-  static createElement( taskData ) {
-    return create( `
+  static createElement( taskData, taskID ) {
+    let hasSubs = !!taskData.subs.length,
+      mayBeCompleted = Task.mayBeCompleted( taskData ),
+      { status, statusClass } = Task.status( taskData );
+
+    let task = create( `
       <div class="task">
         <div class="task__inner row _justify-evenly _align-center">
-          <label class="checkbox
-          ${taskData.completed ? 'checkbox_checked' : ''}
-          ${taskData.mayBeCompleted ? '' : 'checkbox_disabled'}">
-            <input type="checkbox" class="task__completed input_checkbox" hidden
-              ${taskData.mayBeCompleted ? '' : 'disabled'}
-              ${taskData.completed ? 'checked' : ''}>
+          <label class="checkbox">
+            <input type="checkbox" class="task__completed input_checkbox" hidden>
           </label>
           <div class="task__body sm:col lg:row _justify-between">
             <div class="task__title">${taskData.title}</div>
-            <div class="tesk__status sm:_mt-1 lg:_ml-2 ${taskData.statusClass}">${taskData.status}</div>
+            <div class="tesk__status sm:_mt-1 lg:_ml-2 ${statusClass}">${status}</div>
           </div>
         </div>
-        ${taskData.hasSubs ? `<div class="task__subs-container"></div>` : ''}
       </div>
     `);
+
+    let label = select( '.checkbox', task )[ 0 ];
+    let checkbox = select( '.input_checkbox', task )[ 0 ];
+    checkbox.taskID = taskID;
+    checkbox.addEventListener( 'change', Task.changeState );
+
+    if ( taskData.completed ) {
+      addClass( label, 'checkbox_checked' );
+      checkbox.checked = true;
+    }
+    if ( !mayBeCompleted ) {
+      addClass( label, 'checkbox_disabled' );
+      checkbox.disabled = true;
+    }
+
+    let taskBody = select( '.task__body', task )[ 0 ];
+    taskBody.taskID = taskID;
+    taskBody.addEventListener( 'click', Task.editHandler );
+
+    if ( hasSubs ) {
+      let subContainer = append( task, create( '<div class="task__subs-container"></div>' ) );
+      each(
+        taskData.subs,
+        ( subData, subID ) => append( subContainer, Task.createSubElement( subData, subID, taskID ) )
+      );
+    }
+
+    return task;
   }
 
   /**
@@ -210,15 +235,28 @@ class Task {
    * @param {Object} subData
    * @returns {ChildNode}
    */
-  static createSubElement( subData ) {
-    return create( `
+  static createSubElement( subData, subID, parentID ) {
+    let sub = create( `
       <div class="sub-task row _justify-evenly _align-center">
-        <label class="checkbox ${subData.completed ? 'checkbox_checked' : ''}">
-          <input type="checkbox" class="sub-task__completed input_checkbox" hidden ${subData.completed ? 'checked' : ''}>
+        <label class="checkbox">
+          <input type="checkbox" class="sub-task__completed input_checkbox" hidden>
         </label>
         <div class="sub-task__title">${subData.title}</div>
       </div>
     `);
+
+    let label = select( '.checkbox', sub )[ 0 ];
+    let checkbox = select( '.input_checkbox', sub )[ 0 ];
+    checkbox.parentID = parentID;
+    checkbox.taskID = subID;
+    checkbox.addEventListener( 'click', Task.changeSubState );
+
+    if ( subData.completed ) {
+      checkbox.checked = true;
+      addClass( label, 'checkbox_checked' );
+    }
+
+    return sub;
   }
 
   /**
@@ -231,9 +269,10 @@ class Task {
     let sub = parentTask.subs[ this.taskID ];
     sub.completed = this.checked;
 
+    // Move to active if the sub became false and the parent task has been completed
     if ( !sub.completed && parentTask.completed ) {
       parentTask.completed = false;
-      Task.moveToActive( this.parentID )
+      Task.moveToActive( this.parentID );
     }
 
     TaskList.save();
@@ -244,13 +283,15 @@ class Task {
    * Change task's completed state
    *
    * @returns {void}
+   * @this {ChildNode} Task's checkbox
    */
   static changeState() {
     let task = TaskList.getTask( this.taskID );
     task.completed = this.checked;
 
-    if ( task.completed ) Task.moveToCompleted( this.taskID )
-    else Task.moveToActive( this.taskID )
+    task.completed
+      ? Task.moveToCompleted( this.taskID )
+      : Task.moveToActive( this.taskID );
 
     TaskList.save();
     render();
@@ -281,34 +322,29 @@ class Task {
    *
    * @param {Object} taskData
    * @param {Array} filters
-   * @param {number} taskID
    * @returns {Object|boolean}
    */
-  static matchFilter( taskData, filters, taskID ) {
+  static matchFilter( taskData, filters ) {
     let foundFilters = 0,
+      // Clone the task to avoid change the saved data
       task = Task.clone( taskData );
-
-    task.id = taskID;
 
     each( filters, filter => {
       let found = false;
       let regexp = new RegExp( `(${filter})`, 'gi' );
 
-      found = found || ( task.title.match( regexp ) && !!( task.title = task.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) ) );
-      found = found || ( Task.status( task ).status.match( regexp ) );
+      if ( task.title.match( regexp ) ) { found = !!( task.title = task.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) ) }
+      if ( Task.status( task ).status.match( regexp ) ) found = true;
       if ( task.until.date ) {
-        let untilDate = date( task.until.date ).toLocaleDateString();
-        found = found || ( untilDate.match( regexp ) );
-        task.until.time && ( found = found || ( task.until.time.match( regexp ) ) );
+        if ( date( task.until.date ).toLocaleDateString().match( regexp ) ) found = true;
+        if ( task.until.time && task.until.time.match( regexp ) ) found = true;
       }
 
       each( task.subs, sub => {
-        let foundInSub = !!sub.title.match( regexp );
-        if ( foundInSub ) sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' );
-        found = true;
+        if ( !!sub.title.match( regexp ) ) found = !!( sub.title = sub.title.replaceAll( regexp, '<span class="_text-green">$&</span>' ) )
       } );
 
-      if ( found ) foundFilters++;
+      foundFilters += +found;
     } );
 
     return foundFilters === filters.length ? task : false
@@ -322,29 +358,11 @@ class Task {
    * @returns {void}
    */
   static render( taskData, taskID ) {
+    // If the tasks were filered, it retians the original task id otherwise the original id is passed as parameter
     taskID = taskData.id || taskID;
-    taskData.hasSubs = !!taskData.subs.length;
-    Object.assign( taskData, Task.status( taskData ) );
-    taskData.mayBeCompleted = Task.mayBeCompleted( taskData );
-    let taskElement = Task.createElement( taskData );
+    let task = Task.createElement( taskData, taskID );
 
-    select( '.task__completed', taskElement )[ 0 ].taskID = taskID;
-    select( '.checkbox', taskElement )[ 0 ].addEventListener( 'click', function () { Task.changeState.call( select( '.task__completed', this )[ 0 ] ) } );
-    let taskInner = select( '.task__inner', taskElement )[ 0 ];
-    taskInner.taskID = taskID;
-    taskInner.addEventListener( 'click', function ( evt ) {
-      if ( !evt.target.matches( '.checkbox' ) && !evt.target.matches( '.task__completed' ) ) Task.editHandler.call( this )
-    } );
-
-    let subContainer = select( '.task__subs-container', taskElement )[ 0 ];
-    each( taskData.subs, ( subData, subID ) => {
-      let checkbox = select( '.sub-task__completed', append( subContainer, Task.createSubElement( subData ) ) )[ 0 ];
-      checkbox.parentID = taskID;
-      checkbox.taskID = subID;
-      checkbox.addEventListener( 'click', Task.changeSubState );
-    } );
-
-    TaskList.container.append( taskElement );
+    TaskList.container.append( task );
   }
 
 }

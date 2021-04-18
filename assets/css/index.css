@@ -56,7 +56,7 @@
   border: 1px solid var(--color-accent);
 }
 
-.task__inner { padding: .5em .75em }
+.task__inner { padding: 0 .75em }
 
 .task__inner:hover {
   background-color: var(--color-light);
@@ -67,6 +67,8 @@
 
 .task__body {
   flex-grow: 1;
+
+  padding: .5em 0;
 
   margin-left: .5em;
 }
