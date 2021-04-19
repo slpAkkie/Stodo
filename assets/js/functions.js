@@ -61,18 +61,6 @@ function create( markup ) {
 }
 
 /**
- * Insert element to the top of container
- *
- * @param {Element|Node} node The element to insert in
- * @param {Element|Node} child The element to be inserted
- * @returns {Element|Node} Inserted element
- */
-function prepend( node, child ) {
-  node.prepend( child );
-  return child
-}
-
-/**
  * Insert element to the container
  *
  * @param {Element|Node} node The element to insert in
@@ -94,14 +82,6 @@ function append( node, child ) {
 
 
 /**
- * Check if value is array
- *
- * @param {any} value
- * @returns {boolean}
- */
-function isArray( value ) { return Array.isArray( value ) }
-
-/**
  * Execute callback function on each
  *
  * @param {any} value Values to execute on
@@ -109,25 +89,8 @@ function isArray( value ) { return Array.isArray( value ) }
  * @returns {void}
  */
 function each( value, callback ) {
-  if ( !isArray( value ) ) value = [ value ];
+  if ( !Array.isArray( value ) ) value = [ value ];
   value.forEach( ( el, i ) => callback.call( el, el, i ) );
-}
-
-/**
- * Check if values present in the array
- *
- * @param {Array} source Array to check
- * @param {any} values Values to be checked
- * @returns {boolean}
- */
-function contains( source, values ) {
-  if ( !isArray( values ) ) values = [ values ];
-
-  let contain = false;
-
-  source.forEach( sourceEl => values.forEach( value => { contain = contain || ( sourceEl === value ) } ) );
-
-  return contain
 }
 
 /**
@@ -137,7 +100,7 @@ function contains( source, values ) {
  * @param {string} time
  * @returns {Date}
  */
-function date( date, time = '' ) { return new Date( `${date}${time ? ` ${time}` : ' 23:59'}` ) }
+function date( date, time = '' ) { return new Date( `${date}T${time || '23:59'}` ) }
 
 /**
  * Returns how much days in ms

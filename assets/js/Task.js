@@ -56,7 +56,6 @@ class Task {
         : Task.moveToActive( taskID );
 
     TaskList.save();
-    render();
 
     return { success: true }
   }
@@ -76,7 +75,6 @@ class Task {
       : TaskList.pushActive( taskData );
 
     TaskList.save();
-    render();
 
     return { success: true }
   }
@@ -88,10 +86,7 @@ class Task {
    * @param {Object[]|null} tab
    */
   static delete( taskID, tab = null ) {
-    let tasks = tab || TaskList.getCurrentTasks();
-    for ( let i = taskID; i < tasks.length - 1; i++ ) tasks[ i ] = tasks[ i + 1 ];
-    tasks.length--;
-
+    (tab || TaskList.getCurrentTasks()).splice(taskID, 1);
     TaskList.save();
   }
 
@@ -279,7 +274,6 @@ class Task {
     }
 
     TaskList.save();
-    render();
   }
 
   /**
@@ -297,7 +291,6 @@ class Task {
       : Task.moveToActive( this.taskID );
 
     TaskList.save();
-    render();
   }
 
   /**
