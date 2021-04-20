@@ -80,7 +80,7 @@ class TaskList {
     each( TaskList.getCurrentTasks(), ( task, taskID ) => {
       let matched = Task.matchFilter( task, filter );
       if ( matched ) {
-        // Save original task id value
+        // Save original task id
         matched.id = taskID;
         filtered.push( matched )
       }
@@ -104,18 +104,6 @@ class TaskList {
    * @returns {void}
    */
   static pushCompleted( task ) { TaskList.tabs[ 1 ].unshift( task ) }
-
-
-
-  /**
-   * Save filter and rerender tasks
-   *
-   * @returns {void}
-   */
-  static filterHandler() {
-    state.filter = this.value ? this.value.split( ' ' ).filter( f => ( f ) ) : '';
-    render();
-  }
 
 
 

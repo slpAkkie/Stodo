@@ -197,6 +197,16 @@ function switchTab() {
 }
 
 /**
+ * Save filter and rerender tasks
+ *
+ * @returns {void}
+ */
+function filterHandler() {
+  state.filter = this.value ? this.value.split( ' ' ).filter( f => ( f ) ) : '';
+  render();
+}
+
+/**
  * Render tasks on active tab
  *
  * @returns {void}

@@ -39,13 +39,14 @@ class Task {
     let taskData = TaskList.getTask( taskID );
 
     // If time wasn't changed
-    if ( taskData.until.date && newTaskData.until.date && date( newTaskData.until.date, newTaskData.until.time ) - date( taskData.until.date, taskData.until.time ) === 0 ) {
-      !validate && ( validate = { errors: {} } );
-      validate.errors.date = false;
-      validate.errors.time = false;
+    if ( validate.errors ) {
+      if ( validate.errors.date && taskData.until.date && date( newTaskData.until.date, newTaskData.until.time ) - date( taskData.until.date, taskData.until.time ) === 0 ) {
+        delete validate.errors.date;
+        validate.errors.time && delete validate.errors.time;
+      }
 
-      if ( validate.errors.title || validate.errors.subs ) return validate;
-    } else if ( validate.errors ) return validate;
+      if ( Object.keys( validate.errors ).length ) return validate;
+    }
 
     let oldCompletedState = taskData.completed;
     taskData = TaskList.replace( taskID, newTaskData );
@@ -86,7 +87,7 @@ class Task {
    * @param {Object[]|null} tab
    */
   static delete( taskID, tab = null ) {
-    (tab || TaskList.getCurrentTasks()).splice(taskID, 1);
+    ( tab || TaskList.getCurrentTasks() ).splice( taskID, 1 );
     TaskList.save();
   }
 
@@ -94,7 +95,7 @@ class Task {
    * Check task fields and return array of errors or false if there is no errors
    *
    * @param {Object} taskData
-   * @returns {Object|boolean}
+   * @returns {Object}
    */
   static check( taskData ) {
     let errors = {};
@@ -113,7 +114,7 @@ class Task {
       }
     } );
 
-    return Object.keys( errors ).length ? { errors: errors } : false;
+    return Object.keys( errors ).length ? { errors: errors } : { success: true };
   }
 
   /**
@@ -355,10 +356,12 @@ class Task {
    */
   static render( taskData, taskID ) {
     // If the tasks were filtered, it retains the original task id otherwise the original id is passed as parameter
-    taskID = taskData.id || taskID;
-    let task = Task.createElement( taskData, taskID );
+    if ( taskData.id ) {
+      taskID = taskData.id || taskID;
+      delete taskData.id;
+    }
 
-    TaskList.container.append( task );
+    TaskList.container.append( Task.createElement( taskData, taskID ) );
   }
 
 }
