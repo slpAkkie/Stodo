@@ -144,7 +144,7 @@ a {
     min-width: 320px;
     min-height: 525px;
 
-    background-color: var(--color-darker-75);
+    background-color: var(--color-darker-50);
 
     z-index: 101;
     overflow: auto;
@@ -190,7 +190,7 @@ a {
 .popup__footer {
     padding: 1em 1.5em;
 
-    background-color: var(--bg-body);
+    background-color: var(--color-darker);
 }
 
 .label-text + .input {
