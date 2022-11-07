@@ -1,5 +1,11 @@
 # Stodo
 
-## from-scratch_v2
+Simple client-side to-do app.
 
-Fully completed project
+## Author
+
+Alexandr Shamanin (@slpAkkie)
+
+## Version
+
+1.0.0

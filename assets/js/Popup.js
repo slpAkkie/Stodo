@@ -89,9 +89,12 @@ class Popup {
    */
   static createSub( subData = null ) {
     subData = subData ?? { title: '', completed: false };
+    let slug = strrandom(8);
+
     let sub = create( `
       <div class="popup__sub row _justify-evenly _align-center">
-        <input type="checkbox" class="popup__sub-completed">
+        <input type="checkbox" id="popup__sub-completed-${slug}" class="popup__sub-completed" hidden>
+        <label class="checkbox" for="popup__sub-completed-${slug}"></label>
         <input type="text" class="popup__sub-title input _w-100" value="${subData.title}">
         <button class="popup__sub-remove button button_danger">Удалить</button>
       </div>

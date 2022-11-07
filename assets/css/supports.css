@@ -1,87 +1,107 @@
 /* Flex */
 
-.row, .col { display: flex }
+.row,
+.col {
+    display: flex;
+}
 
-.col { flex-direction: column }
+.col {
+    flex-direction: column;
+}
 
-._grow { flex-grow: 1 }
+._grow {
+    flex-grow: 1;
+}
 
-._justify-end { justify-content: flex-end }
-._justify-center { justify-content: center }
-._justify-between { justify-content: space-between }
-._justify-evenly { justify-content: space-evenly }
+._justify-end {
+    justify-content: flex-end;
+}
+._justify-center {
+    justify-content: center;
+}
+._justify-between {
+    justify-content: space-between;
+}
+._justify-evenly {
+    justify-content: space-evenly;
+}
 
-._align-center { align-items: center }
-
-
-
-
-
-
-
-
-
+._align-center {
+    align-items: center;
+}
 
 /* Text */
 
-._text-center { text-align: center }
+._text-center {
+    text-align: center;
+}
 
-._text-green { color: var(--color-green) }
-._text-red { color: var(--color-red) }
-._text-muted { color: var(--color-dark) }
-
-
-
-
-
-
-
-
-
+._text-green {
+    color: var(--color-green);
+}
+._text-red {
+    color: var(--color-red);
+}
+._text-muted {
+    color: var(--color-dark);
+}
 
 /* Dimensions */
 
-._mt-4 { margin-top: 1em }
-._mt-5 { margin-top: 1.5em }
+._ml-2 {
+    margin-left: 0.5em;
+}
 
-._w-100 { width: 100% }
+._mt-4 {
+    margin-top: 1em;
+}
+._mt-5 {
+    margin-top: 1.5em;
+}
 
-
-
-
-
-
-
-
-
+._w-100 {
+    width: 100%;
+}
 
 /* Media queries */
 
 @media screen and (max-width: 554px) {
+    .sm\:row {
+        display: flex;
+    }
+    .sm\:col {
+        display: flex;
+        flex-direction: column;
+    }
 
-  .sm\:row { display: flex }
-  .sm\:col {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .sm\:_mt-1 { margin-top: .25em }
-  .sm\:_mt-2 { margin-top: .5em }
-
+    .sm\:_mt-1 {
+        margin-top: 0.25em;
+    }
+    .sm\:_mt-2 {
+        margin-top: 0.5em;
+    }
 }
 
 @media screen and (min-width: 555px) {
+    .lg\:row {
+        display: flex;
+    }
+    .lg\:col {
+        display: flex;
+        flex-direction: column;
+    }
 
-  .lg\:row { display: flex }
-  .lg\:col {
-    display: flex;
-    flex-direction: column;
-  }
+    .lg\:_justify-end {
+        justify-content: flex-end;
+    }
 
-  .lg\:_justify-end { justify-content: flex-end }
-
-  .lg\:_ml-2 { margin-left: .5em }
-  .lg\:_ml-3 { margin-left: .75em }
-  .lg\:_mr-3 { margin-right: .75em }
-
+    .lg\:_ml-2 {
+        margin-left: 0.5em;
+    }
+    .lg\:_ml-3 {
+        margin-left: 0.75em;
+    }
+    .lg\:_mr-3 {
+        margin-right: 0.75em;
+    }
 }

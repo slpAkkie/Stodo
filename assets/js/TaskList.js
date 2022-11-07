@@ -66,7 +66,19 @@ class TaskList {
    *
    * @returns {Array}
    */
-  static getCurrentTasks() { return TaskList.tabs[ state.activeTabID ] }
+  static getCurrentTasks() {
+    return TaskList.tabs[state.activeTabID].sort((a, b) => {
+      if (a.until.date === null) return 1;
+      if (b.until.date === null || a.until.date < b.until.date) return -1;
+
+      if (a.until.date === b.until.date) {
+      if (a.until.time === null) return 1;
+      if (b.until.time === null || a.until.time < b.until.time) return -1;
+      }
+
+      return 0;
+    })
+  }
 
   /**
    * Filter tasks from current tab

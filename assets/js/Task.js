@@ -139,6 +139,13 @@ class Task {
   static status( taskData ) {
     let statusData = { status: '', statusClass: '_text-muted' };
 
+    if ( taskData.completed ) {
+      statusData.status = 'Выполнено';
+      statusData.statusClass = '_text-green';
+
+      return statusData;
+    }
+
     if ( !taskData.until.date ) return statusData;
 
     let untilDate = date( taskData.until.date, taskData.until.time );

@@ -108,7 +108,23 @@ function date( date, time = '' ) { return new Date( `${date}T${time || '23:59'}`
  * @param {number} ms
  * @returns {number}
  */
-function msToDays( ms ) { return ms / 1000 / 3600 / 24 }
+function msToDays(ms) { return ms / 1000 / 3600 / 24 }
+
+/**
+ * Generate string with random characters
+ *
+ * @param {integer} length
+ * @returns {string}
+ */
+function strrandom(length) {
+  var result = '';
+  var characters = 'abcdefghijklmnopqrstuvwxyz';
+
+  for ( var _ = 0; _ < length; _++ )
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+
+  return result;
+}
 
 
 

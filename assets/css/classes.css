@@ -2,114 +2,101 @@
 
 .input,
 .button {
-  padding: 4px 15px;
+    padding: 4px 15px;
 
-  border: 1px solid var(--color-neutral);
-  border-radius: .25em;
+    background: var(--color-darker);
+    border: 1px solid var(--color-dark);
+    border-radius: 0.25em;
 
-  transition: all .15s ease;
+    color: var(--text-color-base);
+
+    transition: all 0.15s ease;
 }
-
-
-
-
-
-
-
-
-
 
 /* Input */
 
-.input_wrong { border-color: var(--color-red) }
+.input_wrong {
+    border-color: var(--color-red);
+}
 
-.input:not(.input_wrong):focus { border-color: var(--color-accent) }
-
-
-
-
-
-
-
-
-
+.input:not(.input_wrong):focus {
+    border-color: var(--color-accent);
+}
 
 /* Button */
 
 .button {
-  color: var(--color, inherit);
-  font-variation-settings: 'wght' 555;
-  background-color: var(--color-light);
-  border-color: var(--color, var(--color-neutral));
-  cursor: pointer;
+    color: var(--color, inherit);
+    font-variation-settings: 'wght' 555;
+    background-color: var(--color-darker);
+    border-color: var(--color, var(--color-dark));
+    cursor: pointer;
 }
 
 .button:hover {
-  color: white;
-  background-color: var(--color, var(--color-accent));
-  border-color: var(--color, var(--color-accent));
+    color: white;
+    background-color: var(--color, var(--color-accent));
+    border-color: var(--color, var(--color-accent));
 }
 
-.button_danger { --color: var(--color-red) }
-.button_success { --color: var(--color-green) }
-
-
-
-
-
-
-
-
-
+.button_danger {
+    --color: var(--color-red);
+}
+.button_success {
+    --color: var(--color-green);
+}
 
 /* Label */
 
-.label { width: 100% }
-.label-text { font-variation-settings: 'wght' 545 }
+.label {
+    width: 100%;
+}
+.label-text {
+    font-variation-settings: 'wght' 545;
+}
 
 label.checkbox {
-  --size: 15px;
-  position: relative;
-  width: var(--size);
-  height: var(--size);
-  border: 1px solid var(--color-neutral);
-  border-radius: .25em;
-  cursor: pointer;
+    --size: 15px;
+    position: relative;
+    width: var(--size);
+    min-width: var(--size);
+    height: var(--size);
+    min-height: var(--size);
+    border: 1px solid var(--color-dark);
+    border-radius: 0.25em;
+    cursor: pointer;
 }
 
-label.checkbox_checked {
-  border-color: var(--color-accent);
-  background-color: var(--color-accent);
+label.checkbox_checked,
+input[type='checkbox']:checked + label.checkbox {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
 }
 
-label.checkbox_checked::after {
-  content: '✔';
-  color: white;
-  position: absolute;
-  top: -2px;
-  left: 0;
-  font-size: 1.25em;
-  line-height: 1;
+label.checkbox_checked::after,
+input[type='checkbox']:checked + label.checkbox::after {
+    content: '✔';
+    color: white;
+    position: absolute;
+    top: -2px;
+    left: 0;
+    font-size: 1.25em;
+    line-height: 1;
 }
 
-label.checkbox_disabled { background-color: var(--color-light) }
-
-
-
-
-
-
-
-
+label.checkbox_disabled {
+    background-color: var(--color-dark);
+    border-color: var(--color-dark);
+}
 
 /* Container */
 
 .container {
-  max-width: 856px;
-  min-width: 320px;
+    max-width: 856px;
+    min-width: 320px;
 
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 2em;
-  padding-right: 2em;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2em;
+    padding-right: 2em;
 }
