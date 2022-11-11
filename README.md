@@ -1,4 +1,4 @@
-# Stodo
+## Stodo
 
 Simple client-side to-do app.
 
@@ -8,4 +8,4 @@ Alexandr Shamanin (@slpAkkie)
 
 ## Version
 
-1.0.0
+1.1.0
