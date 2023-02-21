@@ -1,11 +1,11 @@
-## Stodo
+# Stodo
 
-Simple client-side to-do app.
+Простенькое `TODO` web-приложение для студентов и школьников
 
-## Author
+## Автор
 
 Alexandr Shamanin (@slpAkkie)
 
-## Version
+## Версия
 
 1.1.0
